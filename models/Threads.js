@@ -8,13 +8,16 @@ const ThreadsSchema = new Schema({
     },
     title: {
         type: String,
+        required: true
     },
     content: {
         type: String,
+        required: true
     },
     category: {
         type: Schema.Type.ObjectId,
-        ref: "Category"
+        ref: "Category",
+        required: true
     },
     likes: [{
         users: {
