@@ -6,7 +6,34 @@ module.exports = {
         const { title, content, category } = req.body
         const userId = req.user._id
         try {
+            const schema = joi.object({
+                title: joi.string(),
+                content: joi.string()
+            })
+            const { error } = schema.validate({...body }, { aboutEarly: false })
+            if (error) {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "please input correctly",
+                    error: error['details'][0]['message']
+                })
+            }
 
+            const createthread = await Threads.create({
+                userId,
+                title,
+                content
+            })
+            if (!createthread) {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "cannot create thread"
+                })
+            }
+            return res.status(200).json({
+                status: "success",
+                message: "success created thread"
+            })
 
         } catch (err) {
             console.log(err)
