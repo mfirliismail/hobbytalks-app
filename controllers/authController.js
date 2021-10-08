@@ -90,13 +90,13 @@ module.exports = {
                 })
             }
             const checkEmail = await Users.findOne({
-                    email: email
+                email: email
             });
+
             if(!checkEmail) {
                 return res.status(400).json({
                     status : "failed",
-                    message: "Invalid email or password",
-                    error: error["details"][0]["message"]
+                    message: "Invalid email or password"
                 });
             }
             console.log(checkEmail);
