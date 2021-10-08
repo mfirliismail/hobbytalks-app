@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const ThreadsSchema = new Schema({
-    users: {
+    userId: {
         type: Schema.Type.ObjectId,
         ref: "Users"
     },
