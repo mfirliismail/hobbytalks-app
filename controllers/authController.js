@@ -26,11 +26,11 @@ module.exports = {
                 return res.status(400).json({
                     status: "failed",
                     message: "input uncorrectly",
-                    error: error["detail"][0]["message"]
+                    error: error["details"][0]["message"]
                 })
             }
 
-            const checkEmail = await user.findOne({
+            const checkEmail = await Users.findOne({
                 email:email
             })
 
@@ -59,7 +59,7 @@ module.exports = {
             res.status(200).json({
                 status: "Success",
                 message: "Succes Sign Up, check your Email",
-                data: signUp
+
             })
 
         } catch (error) {
