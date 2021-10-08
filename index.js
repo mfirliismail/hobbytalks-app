@@ -9,6 +9,7 @@ db()
 
 app.use('/api/v1', router)
 
+
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`)
 })
