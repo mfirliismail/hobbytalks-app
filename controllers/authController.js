@@ -1,4 +1,4 @@
-const { Users } = require('../models/Users')
+const Users = require('../models/Users')
 const {authHash} = require('../middlewares/auth')
 const Joi = require('joi')
 require("dotenv").config()
@@ -30,7 +30,7 @@ module.exports = {
                 })
             }
 
-            const checkEmail = await Users.findOne({
+            const checkEmail = await user.findOne({
                 email:email
             })
 
@@ -112,14 +112,14 @@ module.exports = {
             const payload = {
                 email: checkEmail.dataValues.email,
                 id: checkEmail.dataValues.id,
-              };
-              jwt.sign(payload,process.env.PWD_TOKEN, { expiresIn: 3600*24 }, (err, token) => {
+            };
+            jwt.sign(payload,process.env.PWD_TOKEN, { expiresIn: 3600*24 }, (err, token) => {
                 return res.status(200).json({
-                  status: "success",
-                  message: "Logged in successfully",
-                  data: token,
+                    status: "success",
+                    message: "Logged in successfully",
+                    data: token,
                 });
-              });
+            });
         
         } catch (error) {
             return res.status(500).json({
