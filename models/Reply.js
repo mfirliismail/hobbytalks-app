@@ -3,26 +3,26 @@ const Schema = mongoose.Schema;
 
 const ReplySchema = new Schema({
     userId: {
-        type: Schema.Type.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Users"
     },
     commentId: {
-        type: Schema.Type.ObjectId,
-        ref: "Comments"
+        type: Schema.Types.ObjectId,
+        ref: "Threads"
     },
     content: {
         type: String
     },
     likes: [{
-        type: Schema.Type.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Users"
     }],
     dislike: [{
 
-        type: Schema.Type.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Users"
 
     }]
 })
 
-module.exports = Reply = model('Reply', ReplySchema)
+module.exports = Reply = model('', ReplySchema)

@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const ThreadsSchema = new Schema({
     userId: {
-        type: Schema.Type.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Users"
     },
     title: {
@@ -15,27 +15,27 @@ const ThreadsSchema = new Schema({
         required: true
     },
     category: {
-        type: Schema.Type.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Category"
     },
     likes: [{
-        type: Schema.Type.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Users"
     }],
     dislike: [{
-        type: Schema.Type.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Users"
     }],
     comment: [{
-        type: Schema.Type.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Comments"
     }],
     reply: [{
-        type: Schema.Type.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Reply"
     }],
     subReply: [{
-        type: Schema.TypeObjectId,
+        type: Schema.Types.ObjectId,
         ref: "subReply"
     }]
 

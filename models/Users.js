@@ -25,15 +25,15 @@ const UsersSchema = new Schema({
         type: String
     },
     categoryLike: [{
-        type: Schema.Type.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Category"
     }],
     threads: [{
-        type: Schema.Type.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Threads"
     }],
     following: [{
-        type: Schema.Type.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Threads"
     }]
 })
