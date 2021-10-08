@@ -40,14 +40,14 @@ module.exports = {
         try {
             console.log(id)
             console.log(body)
-            const Categories = await Categories.findById(Id)
-            Categories.name = body.name
-            Categories.Id = body.Id
-            await Categories.save
+            const categories = await Categories.findById(id)
+            categories.name = body.name
+            categories.id = body.id
+            await categories.save()
 
             return res.status(200).json({
                 status : "succses",
-                data : Categories
+                data : categories
             })
         } catch (error){
             console.log(error)
