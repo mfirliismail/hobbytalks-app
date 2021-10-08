@@ -3,23 +3,23 @@ const Schema = mongoose.Schema;
 
 const SubReplySchema = new Schema({
     userId: {
-        type: Schema.Type.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Users"
     },
     replyId: {
-        type: Schema.Type.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Reply"
     },
     content: {
         type: String
     },
     likes: [{
-        type: Schema.Type.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Users"
     }],
     dislike: [{
 
-        type: Schema.Type.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Users"
 
     }]
