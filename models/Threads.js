@@ -37,8 +37,11 @@ const ThreadsSchema = new Schema({
     subReply: [{
         type: Schema.Types.ObjectId,
         ref: "subReply"
-    }]
-
+    }],
+    date: {
+        type: Date,
+        default: Date.now,
+    },
 })
 
 
