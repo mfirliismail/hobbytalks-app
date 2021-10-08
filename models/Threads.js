@@ -20,84 +20,26 @@ const ThreadsSchema = new Schema({
         required: true
     },
     likes: [{
-        users: {
-            type: Schema.Type.ObjectId,
-            ref: "Users"
-        }
+        type: Schema.Type.ObjectId,
+        ref: "Users"
     }],
     dislike: [{
-        userId: {
-            type: Schema.Type.ObjectId,
-            ref: "Users"
-        }
+        type: Schema.Type.ObjectId,
+        ref: "Users"
     }],
     comment: [{
-        userId: {
-            type: Schema.Type.ObjectId,
-            ref: "Users"
-        },
-        content: {
-            type: String
-        },
-        likes: [{
-            userId: {
-                type: Schema.Type.ObjectId,
-                ref: "Users"
-            }
-        }],
-        dislike: [{
-            userId: {
-                type: Schema.Type.ObjectId,
-                ref: "Users"
-            }
-        }],
-        reply: [{
-            userId: {
-                type: Schema.Type.ObjectId,
-                ref: "Users"
-            },
-            content: {
-                type: String
-            },
-            likes: [{
-                userId: {
-                    type: Schema.Type.ObjectId,
-                    ref: "Users"
-                }
-            }],
-            dislike: [{
-                userId: {
-                    type: Schema.Type.ObjectId,
-                    ref: "Users"
-                }
-            }],
-            subReplay: [{
-                userId: {
-                    type: Schema.Type.ObjectId,
-                    ref: "Users"
-                },
-                content: {
-                    type: String
-                },
-                likes: [{
-                    userId: {
-                        type: Schema.Type.ObjectId,
-                        ref: "Users"
-                    }
-                }],
-                dislike: [{
-                    userId: {
-                        type: Schema.Type.ObjectId,
-                        ref: "Users"
-                    }
-                }],
-            }]
-        }]
+        type: Schema.Type.ObjectId,
+        ref: "Comments"
     }],
-    date: {
-        type: Date,
-        default: Date.now,
-    }
+    reply: [{
+        type: Schema.Type.ObjectId,
+        ref: "Reply"
+    }],
+    subReply: [{
+        type: Schema.TypeObjectId,
+        ref: "subReply"
+    }]
+
 })
 
 
