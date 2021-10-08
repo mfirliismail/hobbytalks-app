@@ -28,7 +28,7 @@ module.exports = {
                 return res.status(400).json({
                     status: "failed",
                     message: "input uncorrectly",
-                    error: error["detail"][0]["message"]
+                    error: error["details"][0]["message"]
                 })
             }
 
@@ -86,7 +86,7 @@ module.exports = {
                 return res.status(400).json({
                     status : "failed",
                     message: "Invalid email or password",
-                    error: error["detail"][0]["message"]
+                    error: error["details"][0]["message"]
                 })
             }
             const checkEmail = await Users.findOne({
@@ -96,7 +96,7 @@ module.exports = {
                 return res.status(400).json({
                     status : "failed",
                     message: "Invalid email or password",
-                    error: error["detail"][0]["message"]
+                    error: error["details"][0]["message"]
                 });
             }
             console.log(checkEmail);
@@ -106,21 +106,20 @@ module.exports = {
             if(!checkPassword) {
                 return res.status(400).json({
                     status : "failed",
-                    message: "Invalid email or password",
-                    error: error["detail"][0]["message"]
+                    message: "Invalid email or password"
                 });
             }
             const payload = {
                 email: checkEmail.email,
                 id: checkEmail._id,
-              };
-              jwt.sign(payload,process.env.PWD_TOKEN, { expiresIn: 3600*24 }, (err, token) => {
+            };
+            jwt.sign(payload,process.env.PWD_TOKEN, { expiresIn: 3600*24 }, (err, token) => {
                 return res.status(200).json({
-                  status: "success",
-                  message: "Logged in successfully",
-                  data: token,
+                    status: "success",
+                    message: "Logged in successfully",
+                    data: token,
                 });
-              });
+            });
         
         } catch (error) {
             console.log(error)
@@ -129,13 +128,5 @@ module.exports = {
                 message: "Internal Server Error"
             })
         }
-      
-      // Validate email & password
-    //   if (!email || !password) {
-    //     return next.status(400).json({
-    //     status : "failed",
-    //     message: "Please provide email and password"
-    //   });
-    //   }
     }
 }
