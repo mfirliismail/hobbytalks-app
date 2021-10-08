@@ -127,13 +127,5 @@ module.exports = {
                 message: "Internal Server Error"
             })
         }
-      
-      // Validate email & password
-    //   if (!email || !password) {
-    //     return next.status(400).json({
-    //     status : "failed",
-    //     message: "Please provide email and password"
-    //   });
-    //   }
     }
 }
