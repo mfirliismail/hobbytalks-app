@@ -10,7 +10,7 @@ module.exports = {
                 title: joi.string(),
                 content: joi.string()
             })
-            const { error } = schema.validate({...body }, { aboutEarly: false })
+            const { error } = schema.validate({...req.body }, { aboutEarly: false })
             if (error) {
                 return res.status(400).json({
                     status: "failed",
@@ -20,7 +20,7 @@ module.exports = {
             }
 
             const createthread = await Threads.create({
-                userId,
+                userId: userId,
                 title,
                 content
             })
