@@ -1,19 +1,20 @@
-const { Users } = require('../models')
+const { Users } = require('../models/Users')
 const {authHash} = require('../middlewares/auth')
 const Joi = require('joi')
+require("dotenv").config()
 
 module.exports = {
     signUp: async (req, res) => {
         try {
             const { email, name, password } = req.body
 
-            const schema = await Joi.object({
+            const schema = Joi.object({
                 name: Joi.string().min(6).required(),
                 email: Joi.string().email().required(),
                 password: Joi.string().min(8).required()
             })
 
-            const {error} = await schema.validate({
+            const {error} = schema.validate({
                 name: name,
                 email: email,
                 password: password
@@ -62,10 +63,77 @@ module.exports = {
             })
 
         } catch (error) {
+            console.log(error)
             return res.status(500).json({
                 status: "Failed",
                 message: "Internal Server Error"
             })
         }
+    },
+
+    login : async (req, res, next) => {
+        const { email, password } = req.body;
+        try {
+            const schema = Joi.object({
+                email : Joi.string().email().required(),
+                password: Joi.string().min(8).required()
+            });
+            const { error } = schema.validate({ ...body });
+
+            if(error) {
+                return res.status(400).json({
+                    status : "failed",
+                    message: "Invalid email or password",
+                    error: error["detail"][0]["message"]
+                })
+            }
+            const checkEmail = await Users.findOne({
+                where: {
+                    email: body.email
+                }
+            });
+            if(!checkEmail) {
+                return res.status(400).json({
+                    status : "failed",
+                    message: "Invalid email or password",
+                    error: error["detail"][0]["message"]
+                });
+            }
+            const checkPassword = await bcrypt.compare(body.password,
+                checkEmail.dataValues.password);
+
+            if(!checkPassword) {
+                return res.status(400).json({
+                    status : "failed",
+                    message: "Invalid email or password",
+                    error: error["detail"][0]["message"]
+                });
+            }
+            const payload = {
+                email: checkEmail.dataValues.email,
+                id: checkEmail.dataValues.id,
+              };
+              jwt.sign(payload,process.env.PWD_TOKEN, { expiresIn: 3600*24 }, (err, token) => {
+                return res.status(200).json({
+                  status: "success",
+                  message: "Logged in successfully",
+                  data: token,
+                });
+              });
+        
+        } catch (error) {
+            return res.status(500).json({
+                status: "Failed",
+                message: "Internal Server Error"
+            })
+        }
+      
+      // Validate email & password
+    //   if (!email || !password) {
+    //     return next.status(400).json({
+    //     status : "failed",
+    //     message: "Please provide email and password"
+    //   });
+    //   }
     }
 }

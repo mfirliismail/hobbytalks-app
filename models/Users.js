@@ -40,4 +40,4 @@ const UsersSchema = new Schema({
 
 
 
-module.exports = Users = mongoose.model('Users', ThreadsSchema);
+module.exports = Users = mongoose.model('Users', UsersSchema);
