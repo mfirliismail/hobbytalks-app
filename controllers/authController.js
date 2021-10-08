@@ -1,6 +1,8 @@
-const { Users } = require('../models/Users')
+const Users = require('../models/Users')
 const {authHash} = require('../middlewares/auth')
 const Joi = require('joi')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 require("dotenv").config()
 
 module.exports = {
@@ -78,7 +80,7 @@ module.exports = {
                 email : Joi.string().email().required(),
                 password: Joi.string().min(8).required()
             });
-            const { error } = schema.validate({ ...body });
+            const { error } = schema.validate({ ...req.body });
 
             if(error) {
                 return res.status(400).json({
@@ -88,9 +90,7 @@ module.exports = {
                 })
             }
             const checkEmail = await Users.findOne({
-                where: {
-                    email: body.email
-                }
+                    email: email
             });
             if(!checkEmail) {
                 return res.status(400).json({
@@ -99,8 +99,9 @@ module.exports = {
                     error: error["detail"][0]["message"]
                 });
             }
-            const checkPassword = await bcrypt.compare(body.password,
-                checkEmail.dataValues.password);
+            console.log(checkEmail);
+            const checkPassword = await bcrypt.compare(password,
+                checkEmail.password);
 
             if(!checkPassword) {
                 return res.status(400).json({
@@ -110,8 +111,8 @@ module.exports = {
                 });
             }
             const payload = {
-                email: checkEmail.dataValues.email,
-                id: checkEmail.dataValues.id,
+                email: checkEmail.email,
+                id: checkEmail._id,
               };
               jwt.sign(payload,process.env.PWD_TOKEN, { expiresIn: 3600*24 }, (err, token) => {
                 return res.status(200).json({
@@ -122,6 +123,7 @@ module.exports = {
               });
         
         } catch (error) {
+            console.log(error)
             return res.status(500).json({
                 status: "Failed",
                 message: "Internal Server Error"
