@@ -25,4 +25,4 @@ const ReplySchema = new Schema({
     }]
 })
 
-module.exports = Reply = model('', ReplySchema)
+module.exports = Reply = model('Reply', ReplySchema)
