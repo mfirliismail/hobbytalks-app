@@ -2,11 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const UsersSchema = new Schema({
-    firstName: {
-        type: String,
-        required: true
-    },
-    lastName: {
+    name: {
         type: String,
         required: true
     },
@@ -29,22 +25,16 @@ const UsersSchema = new Schema({
         type: String
     },
     categoryLike: [{
-        categoryId: {
-            type: Schema.Type.ObjectId,
-            ref: "Category"
-        }
+        type: Schema.Type.ObjectId,
+        ref: "Category"
     }],
     threads: [{
-        threadId: {
-            type: Schema.Type.ObjectId,
-            ref: "Threads"
-        }
+        type: Schema.Type.ObjectId,
+        ref: "Threads"
     }],
     following: [{
-        threadId: {
-            type: Schema.Type.ObjectId,
-            ref: "Threads"
-        }
+        type: Schema.Type.ObjectId,
+        ref: "Threads"
     }]
 })
 
