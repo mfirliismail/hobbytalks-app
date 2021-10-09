@@ -122,7 +122,7 @@ module.exports = {
             if (!thread) {
                 return res.status(404).json({ msg: 'Thread Not Found' });
             }
-            if (post.userId != user.id) {
+            if (thread.userId != user.id) {
                 return res.status(401).json({ msg: "You Don't Owe This threads" });
             }
             const threads = await Threads.findById(id);
