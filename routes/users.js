@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const users = require('../controllers/users')
-const { signUp, login, googleLogin } = require('../controllers/authController')
+const { signUp, login, googleLogin, googleToken } = require('../controllers/authController')
 const passport = require('../middlewares/passport')
 const { editUser, getProfile, editBanner, getOneUser } = require('../controllers/users')
 const { authToken } = require('../middlewares/auth')
@@ -19,5 +19,6 @@ router.get('/profile/me', authToken, getProfile)
 router.put('/edit/profile', authToken, cloudUpload('avatar'), editUser)
 router.put('/edit/banner', authToken, cloudUpload('banner'), editBanner)
 router.get('/user/:id', getOneUser)
+router.get('/token', googleToken)
 
 module.exports = router
