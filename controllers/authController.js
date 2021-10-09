@@ -37,7 +37,7 @@ module.exports = {
             if(checkEmail) {
                 return res.status(400).json({
                     status: "failed",
-                    message: `${email} already exists`
+                    message: `This ${email} address is already associated with another account`
                 })
             }
 
@@ -113,6 +113,13 @@ module.exports = {
                 email: checkEmail.dataValues.email,
                 id: checkEmail.dataValues.id,
             };
+
+            if(!Users.isVerified){
+                return res.status(401).json({
+                    message: "Your Email has not been verified. Please click on resend"
+                })
+            }
+
             jwt.sign(payload,process.env.PWD_TOKEN, { expiresIn: 3600*24 }, (err, token) => {
                 return res.status(200).json({
                     status: "success",

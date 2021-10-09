@@ -24,6 +24,10 @@ const UsersSchema = new Schema({
     bio: {
         type: String
     },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
     categoryLike: [{
         type: Schema.Types.ObjectId,
         ref: "Category"
