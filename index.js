@@ -4,10 +4,25 @@ const port = process.env.PORT || 5000
 const router = require('./routes')
 const db = require('./db/database')
 app.use(express.json())
+const passport = require('./middlewares/passport')
+const session = require('cookie-session')
+const cors = require('cors')
 
 db()
-
+app.use(session({
+    name: "userlogin-cookie",
+    keys: ["apaaja", "bisaapaaja"]
+}))
+app.use(passport.initialize())
+app.use(passport.session())
 app.use('/api/v1', router)
+app.use(cors())
+app.get('/', (req, res) => {
+    return res.status(200).json({
+        status: "running",
+        message: "server connected"
+    })
+})
 
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`)
