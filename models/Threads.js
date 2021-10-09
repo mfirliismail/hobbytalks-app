@@ -16,8 +16,7 @@ const ThreadsSchema = new Schema({
     },
     category: {
         type: Schema.Types.ObjectId,
-        ref: "Category",
-        required: true
+        ref: "Category"
     },
     likes: [{
         type: Schema.Types.ObjectId,
@@ -38,8 +37,11 @@ const ThreadsSchema = new Schema({
     subReply: [{
         type: Schema.Types.ObjectId,
         ref: "subReply"
-    }]
-
+    }],
+    date: {
+        type: Date,
+        default: Date.now,
+    },
 })
 
 

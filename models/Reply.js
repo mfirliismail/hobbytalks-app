@@ -22,7 +22,11 @@ const ReplySchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "Users"
 
-    }]
+    }],
+    date: {
+        type: Date,
+        default: Date.now,
+    }
 })
 
-module.exports = Reply = model('Reply', ReplySchema)
+module.exports = Reply = mongoose.model('Reply', ReplySchema)
