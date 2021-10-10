@@ -22,7 +22,7 @@ module.exports = {
                     error: error['details'][0]['message']
                 })
             }
-            const user = await Users.findById(userId).select('name email avatar')
+            const user = await Users.findById(userId)
 
             const createthread = await Threads.create({
                 userId: userId,
@@ -35,6 +35,8 @@ module.exports = {
                     message: "cannot create thread"
                 })
             }
+            await user.threads.unshift(createthread._id)
+            await user.save()
             return res.status(200).json({
                 status: "success",
                 message: "success created thread"
