@@ -10,7 +10,7 @@ module.exports = {
         const id = req.user.id
         try {
             console.log(req.user)
-            const findUser = await Users.findById(id)
+            const findUser = await Users.findById(id).select('name email avatar banner bio following categoryLike')
                 .populate({
                     path: "threads",
                     populate: ({
