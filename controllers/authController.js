@@ -1,12 +1,12 @@
 const Users = require('../models/Users')
-const {authHash} = require('../middlewares/auth')
+const { authHash } = require('../middlewares/auth')
 const Joi = require('joi')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 require("dotenv").config()
 
 module.exports = {
-    signUp: async (req, res) => {
+    signUp: async(req, res) => {
         try {
             const { email, name, password } = req.body
 
@@ -16,15 +16,15 @@ module.exports = {
                 password: Joi.string().min(8).required()
             })
 
-            const {error} = schema.validate({
+            const { error } = schema.validate({
                 name: name,
                 email: email,
                 password: password
             }, {
-                AbortEarly:false
+                AbortEarly: false
             })
 
-            if(error){
+            if (error) {
                 return res.status(400).json({
                     status: "failed",
                     message: "input uncorrectly",
@@ -33,10 +33,10 @@ module.exports = {
             }
 
             const checkEmail = await Users.findOne({
-                email:email
+                email: email
             })
 
-            if(checkEmail) {
+            if (checkEmail) {
                 return res.status(400).json({
                     status: "failed",
                     message: `${email} already exists`
@@ -51,7 +51,7 @@ module.exports = {
                 password: hashPassword
             })
 
-            if(!signUp){
+            if (!signUp) {
                 return res.status(400).json({
                     status: "failed",
                     message: "Cannot Sign Up"
@@ -73,18 +73,18 @@ module.exports = {
         }
     },
 
-    login : async (req, res, next) => {
+    login: async(req, res, next) => {
         const { email, password } = req.body;
         try {
             const schema = Joi.object({
-                email : Joi.string().email().required(),
+                email: Joi.string().email().required(),
                 password: Joi.string().min(8).required()
             });
-            const { error } = schema.validate({ ...req.body });
+            const { error } = schema.validate({...req.body });
 
-            if(error) {
+            if (error) {
                 return res.status(400).json({
-                    status : "failed",
+                    status: "failed",
                     message: "Invalid email or password",
                     error: error["details"][0]["message"]
                 })
@@ -93,9 +93,9 @@ module.exports = {
                 email: email
             });
 
-            if(!checkEmail) {
+            if (!checkEmail) {
                 return res.status(400).json({
-                    status : "failed",
+                    status: "failed",
                     message: "Invalid email or password"
                 });
             }
@@ -103,9 +103,9 @@ module.exports = {
             const checkPassword = await bcrypt.compare(password,
                 checkEmail.password);
 
-            if(!checkPassword) {
+            if (!checkPassword) {
                 return res.status(400).json({
-                    status : "failed",
+                    status: "failed",
                     message: "Invalid email or password"
                 });
             }
@@ -113,14 +113,14 @@ module.exports = {
                 email: checkEmail.email,
                 id: checkEmail._id,
             };
-            jwt.sign(payload,process.env.PWD_TOKEN, { expiresIn: 3600*24 }, (err, token) => {
+            jwt.sign(payload, process.env.PWD_TOKEN, { expiresIn: 3600 * 24 }, (err, token) => {
                 return res.status(200).json({
                     status: "success",
                     message: "Logged in successfully",
                     data: token,
                 });
             });
-        
+
         } catch (error) {
             console.log(error)
             return res.status(500).json({
@@ -128,5 +128,46 @@ module.exports = {
                 message: "Internal Server Error"
             })
         }
+    },
+
+    googleLogin: async(req, res) => {
+        let payload;
+        try {
+            const checkEmail = await Users.findOne({
+                email: req.user._json.email
+            });
+            if (checkEmail) {
+                payload = {
+                    email: checkEmail.email,
+                    id: checkEmail.id,
+                };
+            } else {
+                const user = await Users.create({
+                    name: req.user._json.name,
+                    email: req.user._json.email,
+                    password: "undefined",
+                });
+                payload = {
+                    email: user.email,
+                    id: user.id,
+                };
+            }
+
+            jwt.sign(payload, process.env.PWD_TOKEN, { expiresIn: 3600 * 24 }, (err, token) => {
+                return res.redirect('/api/v1/users/token/?token=' + token);
+            });
+        } catch (error) {
+            console.log(error),
+                res.sendStatus(500)
+        }
+    },
+
+    googleToken: async(req, res) => {
+        const token = req.query.token;
+        res.status(200).json({
+            status: "success",
+            message: "successfully obtain token",
+            data: token
+        })
     }
 }
