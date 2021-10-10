@@ -154,7 +154,7 @@ module.exports = {
             }
 
             jwt.sign(payload, process.env.PWD_TOKEN, { expiresIn: 3600 * 24 }, (err, token) => {
-                return res.redirect('/api/v1/users/token/?token=' + token);
+                return res.status(200).json({ status: "success", message: "successfully obtain token", token: token });
             });
         } catch (error) {
             console.log(error),
@@ -162,12 +162,12 @@ module.exports = {
         }
     },
 
-    googleToken: async(req, res) => {
-        const token = req.query.token;
-        res.status(200).json({
-            status: "success",
-            message: "successfully obtain token",
-            data: token
-        })
-    }
+    // googleToken: async(req, res) => {
+    //     const token = req.query.token;
+    //     res.status(200).json({
+    //         status: "success",
+    //         message: "successfully obtain token",
+    //         data: token
+    //     })
+    // }
 }
