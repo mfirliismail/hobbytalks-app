@@ -11,7 +11,6 @@ const subReplyRoute = require('./SubReply')
 
 router.use('/users', userRoute)
 router.use('/category', categoryRouter)
-router.use('/users', userRoute)
 router.use('/threads', threadRoute)
 router.use('/comments', commentRoute)
 router.use('/reply', replyRoute)

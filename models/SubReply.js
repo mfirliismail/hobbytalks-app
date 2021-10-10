@@ -18,10 +18,8 @@ const SubReplySchema = new Schema({
         ref: "Users"
     }],
     dislike: [{
-
         type: Schema.Types.ObjectId,
         ref: "Users"
-
     }],
     date: {
         type: Date,
