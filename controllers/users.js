@@ -10,7 +10,22 @@ module.exports = {
         const id = req.user.id
         try {
             console.log(req.user)
-            const findUser = await Users.findById(id)
+            const findUser = await Users.findById(id).select('name email avatar banner bio following categoryLike')
+                .populate({
+                    path: "threads",
+                    populate: ({
+                        path: "comment",
+                        model: "Comments",
+                        populate: ({
+                            path: "reply",
+                            model: "Reply",
+                            populate: ({
+                                path: "subReply",
+                                model: "SubReply"
+                            })
+                        })
+                    })
+                })
             if (!findUser) {
                 return res.status(400).json({
                     status: "failed",
@@ -89,7 +104,7 @@ module.exports = {
     getOneUser: async(req, res) => {
         const id = req.params.id
         try {
-            const getOne = await Users.findById(id)
+            const getOne = await Users.findById(id).populate('threads')
             if (!getOne) {
                 return res.status(400).json({
                     status: "failed",

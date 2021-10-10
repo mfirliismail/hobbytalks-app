@@ -25,19 +25,11 @@ const ThreadsSchema = new Schema({
     dislike: [{
         type: Schema.Types.ObjectId,
         ref: "Users"
-    }],
+    }], //=========================
     comment: [{
         type: Schema.Types.ObjectId,
         ref: "Comments"
-    }],
-    reply: [{
-        type: Schema.Types.ObjectId,
-        ref: "Reply"
-    }],
-    subReply: [{
-        type: Schema.Types.ObjectId,
-        ref: "subReply"
-    }],
+    }], //=========================
     date: {
         type: Date,
         default: Date.now,

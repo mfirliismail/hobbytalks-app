@@ -8,7 +8,7 @@ const ReplySchema = new Schema({
     },
     commentId: {
         type: Schema.Types.ObjectId,
-        ref: "Threads"
+        ref: "Comments"
     },
     content: {
         type: String
@@ -18,11 +18,13 @@ const ReplySchema = new Schema({
         ref: "Users"
     }],
     dislike: [{
-
         type: Schema.Types.ObjectId,
         ref: "Users"
-
-    }],
+    }], //=========================
+    subReply: [{
+        type: Schema.Types.ObjectId,
+        ref: "subReply"
+    }], //=========================
     date: {
         type: Date,
         default: Date.now,
