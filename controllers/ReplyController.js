@@ -11,7 +11,13 @@ module.exports = {
         try {
             if (id.match(/^[0-9a-fA-F]{24}$/)) {
                 // Yes, it's a valid ObjectId, proceed with `findById` call.
-                const findComment = await comment.findById(id);
+                const findComment = await comment.findById(id)
+                if (!findComment) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "Can't find comment"
+                    })
+                }
                 const saveReply = await reply.create({
                     userId: userId,
                     commentId: id,
@@ -23,8 +29,12 @@ module.exports = {
                     status: "success",
                     message: "Reply created successfully"
                 });
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Comment not found or doesn't exist"
+                })
             }
-
         } catch (error) {
             console.log(error);
             return res.status(500).json({
@@ -34,30 +44,25 @@ module.exports = {
         }
     },
     readAllReply: async(req, res) => {
+        const id = req.params.id
         try {
-            const replies = await reply.find();
+            const replies = await reply.find({ commentId: id }).populate({
+                path: "subReply"
+            }).populate({
+                path: "userId",
+                models: "Users",
+                select: {
+                    "name": 1,
+                    "email": 1,
+                    "avatar": 1
+                }
+            });
+            const findsubReply = await subReply.find({ replyId: replies.id })
             return res.status(200).json({
                 status: "success",
                 message: "Replies retrieved successfully",
                 data: replies,
-            });
-        } catch (error) {
-            console.log(error);
-            return res.status(500).json({
-                status: "error",
-                message: "Internal Server Error",
-            });
-        }
-    },
-    readOneReply: async(req, res) => {
-        const id = req.params.id;
-        try {
-            const Reply = await reply.findOne(id);
-
-            return res.status(200).json({
-                status: "success",
-                message: "Reply retrieved successfully",
-                data: Reply,
+                totalsubReply: findsubReply.length
             });
         } catch (error) {
             console.log(error);
@@ -70,12 +75,19 @@ module.exports = {
     updateReply: async(req, res) => {
         const content = req.params.id;
         const body = req.body;
+        const userId = req.user.id;
         try {
             if (id.match(/^[0-9a-fA-F]{24}$/)) {
                 // Yes, it's a valid ObjectId, proceed with `findById` call.
-                const updateReply = await reply.findOneAndUpdate({ id: content }, body, {
+                const updateReply = await reply.findOneAndUpdate({ id: content, userId: userId }, body, {
                     returnOriginal: false
                 });
+                if (!updateReply) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "You not own this reply"
+                    })
+                }
                 return res.status(201).json({
                     status: "success",
                     message: "Reply updated successfully",
@@ -93,17 +105,25 @@ module.exports = {
     },
     deleteReply: async(req, res) => {
         const id = req.params.id
+        const userId = req.user.id
         try {
-            const paramId = await comment.findById(id)
+            const paramId = await reply.findById(id)
             if (paramId == null) {
                 return res.status(400).json({
                     status: "failed",
                     message: "cannot delete"
                 })
             }
-            const threads = await thread.findById(paramId.threadId)
-            await threads.comment.shift(id)
-            await threads.save()
+            const replies = await reply.findOne({ userId: userId })
+            if (!replies) {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "reply not found"
+                })
+            }
+            const comments = await comment.findById(paramId.commentId)
+            await comments.reply.shift(id)
+            await comments.save()
             const deleteReply = await reply.deleteOne({ _id: id })
             if (!deleteReply.deletedCount) {
                 return res.status(404).json({

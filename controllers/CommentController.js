@@ -14,7 +14,7 @@ module.exports = {
                 if (!threads) {
                     return res.status(400).json({
                         status: "Failed",
-                        message: "Wrong Id Threads"
+                        message: "Can't find Threads"
                     })
                 }
                 const saveComment = await comment.create({
@@ -52,8 +52,15 @@ module.exports = {
                     path: "subReply",
                     models: "SubReply",
                 })
+            }).populate({
+                path: "userId",
+                models: "Users",
+                select: {
+                    "name": 1,
+                    "email": 1,
+                    "avatar": 1
+                }
             })
-            console.log(comments)
             const findReply = await Reply.find({ commentId: comments.id })
             return res.status(200).json({
                 status: "success",
@@ -122,7 +129,7 @@ module.exports = {
                 })
             }
             const threads = await thread.findById(paramId.threadId)
-            await threads.comment.shift(id)
+            await threads.comment.pull(id)
             await threads.save()
             const deleteComment = await comment.deleteOne({ _id: id })
             if (!deleteComment.deletedCount) {
