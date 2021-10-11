@@ -11,9 +11,15 @@ module.exports = {
             if (id.match(/^[0-9a-fA-F]{24}$/)) {
                 // Yes, it's a valid ObjectId, proceed with `findById` call.
                 const findReply = await reply.findById(id)
+                if (!findReply) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "cannot find reply"
+                    })
+                }
                 const saveSubReply = await subReply.create({
                     userId: userId,
-                    threadId: id,
+                    replyId: id,
                     content: body.content
                 });
                 await findReply.subReply.unshift(saveSubReply._id)
@@ -37,8 +43,23 @@ module.exports = {
         }
     },
     readAllSubReply: async(req, res) => {
+        const id = req.params.replyId
         try {
-            const subreplies = await reply.find();
+            const subreplies = await subReply.find({ replyId: id }).populate({
+                path: 'userId',
+                model: "Users",
+                select: {
+                    "name": 1,
+                    "email": 1,
+                    "avatar": 1
+                }
+            })
+            if (!subreplies) {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "cannot find reply"
+                })
+            }
             return res.status(200).json({
                 status: "success",
                 message: "subReplies retrieved successfully",
@@ -52,33 +73,22 @@ module.exports = {
             });
         }
     },
-    readOneSubReply: async(req, res) => {
-        const id = req.params.id;
-        try {
-            const subReply = await reply.findOne(id);
-
-            return res.status(200).json({
-                status: "success",
-                message: "subReply retrieved successfully",
-                data: subReply,
-            });
-        } catch (error) {
-            console.log(error);
-            return res.status(500).json({
-                status: "error",
-                message: "Internal Server Error",
-            });
-        }
-    },
     updateSubReply: async(req, res) => {
         const content = req.params.id;
         const body = req.body;
+        const userId = req.user.id
         try {
             if (id.match(/^[0-9a-fA-F]{24}$/)) {
                 // Yes, it's a valid ObjectId, proceed with `findById` call.
-                const updateSubReply = await subReply.findOneAndUpdate({ id: content }, body, {
+                const updateSubReply = await subReply.findOneAndUpdate({ id: content, userId: userId }, body, {
                     returnOriginal: false
                 });
+                if (!updateSubReply) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "cannot update sub reply"
+                    })
+                }
                 return res.status(201).json({
                     status: "success",
                     message: "subReply updated successfully",
@@ -95,17 +105,18 @@ module.exports = {
     },
     deleteSubReply: async(req, res) => {
         const id = req.params.id
+        const userId = req.user.id
         try {
-            const paramId = await comment.findById(id)
+            const paramId = await reply.findOne({ id: id, userId: userId })
             if (paramId == null) {
                 return res.status(400).json({
                     status: "failed",
                     message: "cannot delete"
                 })
             }
-            const threads = await thread.findById(paramId.threadId)
-            await threads.comment.shift(id)
-            await threads.save()
+            const replys = await reply.findById(paramId.threadId)
+            await replys.subReply.shift(id)
+            await replys.save()
             const deleteSubReply = await subReply.deleteOne({ _id: id })
             if (!deleteSubReply.deletedCount) {
                 return res.status(404).json({
