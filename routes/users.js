@@ -19,6 +19,5 @@ router.get('/profile/me', authToken, getProfile)
 router.put('/edit/profile', authToken, cloudUpload('avatar'), editUser)
 router.put('/edit/banner', authToken, cloudUpload('banner'), editBanner)
 router.get('/user/:id', getOneUser)
-router.get('/token', googleToken)
 
 module.exports = router
