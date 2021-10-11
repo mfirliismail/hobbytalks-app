@@ -46,28 +46,41 @@ module.exports = {
     readAllComments: async(req, res) => {
         const id = req.params.id
         try {
-            const comments = await comment.find({ threadId: id }).populate({
-                path: "reply",
-                populate: ({
-                    path: "subReply",
-                    models: "SubReply",
+            if (id.match(/^[0-9a-fA-F]{24}$/)) {
+                const comments = await comment.find({ threadId: id }).populate({
+                    path: "reply",
+                    populate: ({
+                        path: "subReply",
+                        models: "SubReply",
+                    })
+                }).populate({
+                    path: "userId",
+                    models: "Users",
+                    select: {
+                        "name": 1,
+                        "email": 1,
+                        "avatar": 1
+                    }
                 })
-            }).populate({
-                path: "userId",
-                models: "Users",
-                select: {
-                    "name": 1,
-                    "email": 1,
-                    "avatar": 1
+                if (comments.length == 0) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "Cannot found comment"
+                    })
                 }
-            })
-            const findReply = await Reply.find({ commentId: comments.id })
-            return res.status(200).json({
-                status: "success",
-                message: "Comment retrieved successfully",
-                data: comments,
-                totalReply: findReply.length
-            });
+                const findReply = await Reply.find({ commentId: comments.id })
+                return res.status(200).json({
+                    status: "success",
+                    message: "Comment retrieved successfully",
+                    data: comments,
+                    totalReply: findReply.length
+                });
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Thread not match"
+                })
+            }
         } catch (error) {
             console.log(error);
             return res.status(500).json({
@@ -81,9 +94,9 @@ module.exports = {
         const body = req.body;
         const userId = req.user.id
         try {
-            if (id.match(/^[0-9a-fA-F]{24}$/)) {
+            if (content.match(/^[0-9a-fA-F]{24}$/)) {
                 // Yes, it's a valid ObjectId, proceed with `findById` call.
-                const updateComment = await comment.findOneAndUpdate({ id: content, userId: userId }, body, { returnOriginal: false });
+                const updateComment = await comment.findOneAndUpdate({ _id: content, userId: userId }, body, { returnOriginal: false });
                 if (!updateComment) {
                     return res.status(400).json({
                         status: "failed",
@@ -101,7 +114,6 @@ module.exports = {
                     message: "Update current comment failed"
                 })
             }
-
         } catch (error) {
             console.log(error);
             return res.status(500).json({

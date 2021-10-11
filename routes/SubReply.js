@@ -4,7 +4,7 @@ const SubReply = require('../controllers/SubReplyController')
 const { authToken } = require('../middlewares/auth')
 
 router.post("/:replyId", authToken, SubReply.createSubReply)
-router.get("/", SubReply.readAllSubReply)
+router.get("/:replyId", SubReply.readAllSubReply)
 router.put("/:id", authToken, SubReply.updateSubReply)
 router.delete("/:id", authToken, SubReply.deleteSubReply)
 

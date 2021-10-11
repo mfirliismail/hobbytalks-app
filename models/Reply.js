@@ -23,7 +23,7 @@ const ReplySchema = new Schema({
     }], //=========================
     subReply: [{
         type: Schema.Types.ObjectId,
-        ref: "subReply"
+        ref: "SubReply"
     }], //=========================
     date: {
         type: Date,

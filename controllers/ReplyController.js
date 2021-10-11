@@ -1,7 +1,6 @@
 const subReply = require("../models/SubReply");
 const reply = require("../models/Reply");
 const comment = require("../models/Comment");
-const thread = require("../models/Threads")
 
 module.exports = {
     createReply: async(req, res) => {
@@ -46,24 +45,37 @@ module.exports = {
     readAllReply: async(req, res) => {
         const id = req.params.id
         try {
-            const replies = await reply.find({ commentId: id }).populate({
-                path: "subReply"
-            }).populate({
-                path: "userId",
-                models: "Users",
-                select: {
-                    "name": 1,
-                    "email": 1,
-                    "avatar": 1
+            if (id.match(/^[0-9a-fA-F]{24}$/)) {
+                const replies = await reply.find({ commentId: id }).populate({
+                    path: "subReply"
+                }).populate({
+                    path: "userId",
+                    models: "Users",
+                    select: {
+                        "name": 1,
+                        "email": 1,
+                        "avatar": 1
+                    }
+                });
+                if (replies.length == 0) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "Cannot found comment"
+                    })
                 }
-            });
-            const findsubReply = await subReply.find({ replyId: replies.id })
-            return res.status(200).json({
-                status: "success",
-                message: "Replies retrieved successfully",
-                data: replies,
-                totalsubReply: findsubReply.length
-            });
+                const findsubReply = await subReply.find({ replyId: replies.id })
+                return res.status(200).json({
+                    status: "success",
+                    message: "Replies retrieved successfully",
+                    data: replies,
+                    totalsubReply: findsubReply.length
+                });
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Comment not found or doesn't exist"
+                })
+            }
         } catch (error) {
             console.log(error);
             return res.status(500).json({
@@ -77,9 +89,9 @@ module.exports = {
         const body = req.body;
         const userId = req.user.id;
         try {
-            if (id.match(/^[0-9a-fA-F]{24}$/)) {
+            if (content.match(/^[0-9a-fA-F]{24}$/)) {
                 // Yes, it's a valid ObjectId, proceed with `findById` call.
-                const updateReply = await reply.findOneAndUpdate({ id: content, userId: userId }, body, {
+                const updateReply = await reply.findOneAndUpdate({ _id: content, userId: userId }, body, {
                     returnOriginal: false
                 });
                 if (!updateReply) {
@@ -93,6 +105,11 @@ module.exports = {
                     message: "Reply updated successfully",
                     data: updateReply,
                 });
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Update current reply failed"
+                })
             }
 
         } catch (error) {
@@ -122,7 +139,7 @@ module.exports = {
                 })
             }
             const comments = await comment.findById(paramId.commentId)
-            await comments.reply.shift(id)
+            await comments.reply.pull(id)
             await comments.save()
             const deleteReply = await reply.deleteOne({ _id: id })
             if (!deleteReply.deletedCount) {

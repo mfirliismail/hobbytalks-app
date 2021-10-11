@@ -45,26 +45,33 @@ module.exports = {
     readAllSubReply: async(req, res) => {
         const id = req.params.replyId
         try {
-            const subreplies = await subReply.find({ replyId: id }).populate({
-                path: 'userId',
-                model: "Users",
-                select: {
-                    "name": 1,
-                    "email": 1,
-                    "avatar": 1
+            if (id.match(/^[0-9a-fA-F]{24}$/)) {
+                const subreplies = await subReply.find({ replyId: id }).populate({
+                    path: 'userId',
+                    model: "Users",
+                    select: {
+                        "name": 1,
+                        "email": 1,
+                        "avatar": 1
+                    }
+                })
+                if (subreplies.length == 0) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "cannot find reply"
+                    })
                 }
-            })
-            if (!subreplies) {
+                return res.status(200).json({
+                    status: "success",
+                    message: "subReplies retrieved successfully",
+                    data: subreplies,
+                })
+            } else {
                 return res.status(400).json({
                     status: "failed",
-                    message: "cannot find reply"
+                    message: "Comment not found or doesn't exist"
                 })
             }
-            return res.status(200).json({
-                status: "success",
-                message: "subReplies retrieved successfully",
-                data: subreplies,
-            });
         } catch (error) {
             console.log(error);
             return res.status(500).json({
@@ -78,9 +85,9 @@ module.exports = {
         const body = req.body;
         const userId = req.user.id
         try {
-            if (id.match(/^[0-9a-fA-F]{24}$/)) {
+            if (content.match(/^[0-9a-fA-F]{24}$/)) {
                 // Yes, it's a valid ObjectId, proceed with `findById` call.
-                const updateSubReply = await subReply.findOneAndUpdate({ id: content, userId: userId }, body, {
+                const updateSubReply = await subReply.findOneAndUpdate({ _id: content, userId: userId }, body, {
                     returnOriginal: false
                 });
                 if (!updateSubReply) {
@@ -92,8 +99,13 @@ module.exports = {
                 return res.status(201).json({
                     status: "success",
                     message: "subReply updated successfully",
-                    data: updateReply,
+                    data: updateSubReply,
                 });
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Update current subReply failed"
+                })
             }
         } catch (error) {
             console.log(error);
@@ -107,15 +119,22 @@ module.exports = {
         const id = req.params.id
         const userId = req.user.id
         try {
-            const paramId = await reply.findOne({ id: id, userId: userId })
+            const paramId = await subReply.findById(id)
             if (paramId == null) {
                 return res.status(400).json({
                     status: "failed",
                     message: "cannot delete"
                 })
             }
-            const replys = await reply.findById(paramId.threadId)
-            await replys.subReply.shift(id)
+            const subReplies = await subReply.findOne({ userId: userId })
+            if (!subReplies) {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "reply not found"
+                })
+            }
+            const replys = await reply.findById(paramId.replyId)
+            await replys.subReply.pull(id)
             await replys.save()
             const deleteSubReply = await subReply.deleteOne({ _id: id })
             if (!deleteSubReply.deletedCount) {
