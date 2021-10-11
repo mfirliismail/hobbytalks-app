@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const reply = require('../controllers/ReplyController')
 
-router.post("/", reply.createReply)
+router.post("/:commentId", reply.createReply)
 router.get("/", reply.readAllReply)
 router.get("/:id", reply.readOneReply)
 router.put("/:id", reply.updateReply)
