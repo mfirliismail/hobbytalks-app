@@ -159,7 +159,6 @@ module.exports = {
             })
         }
     },
-
     deleteThreads: async(req, res) => {
         const id = req.params.id
         const user = req.user
@@ -211,6 +210,179 @@ module.exports = {
         } catch (error) {
             return res.status(500).json({
                 status: "failed",
+                message: "Internal Server Error"
+            })
+        }
+    },
+    addLikes: async(req, res) => {
+        const id = req.params.id
+        const userId = req.user.id
+        try {
+            if (id.match(/^[0-9a-fA-F]{24}$/)) {
+                const findthread = await Threads.findById(id)
+                if (!findthread) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "cannot found thread"
+                    })
+                }
+                if (findthread.likes.filter((e) => e.toString() == userId).length > 0) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "threads already liked"
+                    })
+                }
+                if (findthread.dislike.filter((e) => e.toString() == userId).length > 0) {
+                    findthread.dislike.pull(userId)
+                }
+
+                await findthread.likes.unshift(userId)
+
+                await findthread.save()
+                return res.status(200).json({
+                    status: "success",
+                    message: "success like thread"
+                })
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Thread not match"
+                })
+            }
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({
+                status: 'failed',
+                message: "Internal Server Error"
+            })
+        }
+    },
+    deleteLikes: async(req, res) => {
+        const id = req.params.id
+        const userId = req.user.id
+        try {
+            if (id.match(/^[0-9a-fA-F]{24}$/)) {
+                const findthread = await Threads.findById(id)
+                if (!findthread) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "cannot found thread"
+                    })
+                }
+                if (findthread.likes.filter((e) => e.toString() == userId).length === 0) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "threads has not been liked"
+                    })
+                }
+
+                await findthread.likes.pull(userId)
+
+                await findthread.save()
+                return res.status(200).json({
+                    status: "success",
+                    message: "success delete like"
+                })
+
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Thread not match"
+                })
+            }
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({
+                status: 'failed',
+                message: "Internal Server Error"
+            })
+        }
+    },
+    addDislike: async(req, res) => {
+        const id = req.params.id
+        const userId = req.user.id
+        try {
+            if (id.match(/^[0-9a-fA-F]{24}$/)) {
+                const findthread = await Threads.findById(id)
+                if (!findthread) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "cannot found thread"
+                    })
+                }
+                if (findthread.dislike.filter((e) => e.toString() == userId).length > 0) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "threads already disliked"
+                    })
+                }
+                if (findthread.likes.filter((e) => e.toString() == userId).length > 0) {
+                    findthread.likes.pull(userId)
+                }
+
+                await findthread.dislike.unshift(userId)
+
+                await findthread.save()
+                return res.status(200).json({
+                    status: "success",
+                    message: "success dislike thread"
+                })
+
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Thread not match"
+                })
+            }
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({
+                status: 'failed',
+                message: "Internal Server Error"
+            })
+        }
+    },
+    deleteDislike: async(req, res) => {
+        const id = req.params.id
+        const userId = req.user.id
+        try {
+            if (id.match(/^[0-9a-fA-F]{24}$/)) {
+                const findthread = await Threads.findById(id)
+                if (!findthread) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "cannot found thread"
+                    })
+                }
+                if (findthread.dislike.filter((e) => e.toString() == userId).length == 0) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "threads has not been disliked"
+                    })
+                }
+
+                await findthread.dislike.pull(userId)
+
+                await findthread.save()
+                return res.status(200).json({
+                    status: "success",
+                    message: "success delete dislike"
+                })
+
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Thread not match"
+                })
+            }
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({
+                status: 'failed',
                 message: "Internal Server Error"
             })
         }
