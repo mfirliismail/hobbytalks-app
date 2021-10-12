@@ -88,6 +88,7 @@ module.exports = {
                 data: thread,
                 totalPage: total,
                 nextPage: next,
+                currentPage: page,
                 previousPage: previous
             });
         } catch (error) {
@@ -143,6 +144,7 @@ module.exports = {
                 data: threads,
                 totalPage: total,
                 nextPage: next,
+                currentPage: page,
                 previousPage: previous
             })
         } catch (error) {
