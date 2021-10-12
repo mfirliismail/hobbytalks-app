@@ -46,6 +46,7 @@ module.exports = {
         const id = req.params.id
         try {
             if (id.match(/^[0-9a-fA-F]{24}$/)) {
+                const findReplies = await reply.find({ commentId: id })
                 const replies = await reply.find({ commentId: id }).populate({
                     path: "subReply"
                 }).populate({
@@ -56,7 +57,7 @@ module.exports = {
                         "email": 1,
                         "avatar": 1
                     }
-                });
+                }).limit(limit * page);
                 if (replies.length == 0) {
                     return res.status(400).json({
                         status: "failed",
@@ -68,7 +69,9 @@ module.exports = {
                     status: "success",
                     message: "Replies retrieved successfully",
                     data: replies,
-                    totalsubReply: findsubReply.length
+                    totalsubReply: findsubReply.length,
+                    totalReplies: findReplies.length,
+                    totalPage: Math.ceil(findReplies.length / limit)
                 });
             } else {
                 return res.status(400).json({
