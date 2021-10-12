@@ -160,4 +160,150 @@ module.exports = {
             });
         }
     },
+    upvoteSubReply: async(req, res) => {
+        const subreplyId = req.params.id
+        const userId = req.user.id
+        try {
+            if (subreplyId.match(/^[0-9a-fA-F]{24}$/)) {
+                const subreply = await subReply.findById(subreplyId);
+                console.log(subreply)
+                if (subreply.likes.filter((like) => like.toString() === userId).length > 0) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "Already vote"
+                    })
+                }
+
+                if (subreply.dislike.filter((dislikes) => dislikes.toString() === userId).length > 0) {
+                    subreply.dislike.pull(userId)
+                }
+
+                await subreply.likes.unshift(userId)
+
+                await subreply.save()
+                res.status(200).json({
+                    status: "success",
+                    message: "You successfully upvote"
+                })
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Thread not found or doesn't exist"
+                })
+            }
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                status: "error",
+                message: "Internal Server Error",
+            });
+        }
+    },
+    deleteUpvote: async(req, res) => {
+        const subreplyId = req.params.id
+        const userId = req.user.id
+        try {
+            if (subreplyId.match(/^[0-9a-fA-F]{24}$/)) {
+                const subreply = await subReply.findById(subreplyId);
+
+                if (subreply.likes.filter((like) => like.toString() === userId).length === 0) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "There is no vote"
+                    })
+                }
+
+                await subreply.likes.pull(userId)
+                await subreply.save()
+                res.status(200).json({
+                    status: "success",
+                    message: "You successfully delete upvote"
+                })
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Thread not found or doesn't exist"
+                })
+            }
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                status: "error",
+                message: "Internal Server Error",
+            });
+        }
+    },
+    downVoteSubReply: async(req, res) => {
+        const subreplyId = req.params.id
+        const userId = req.user.id
+        try {
+            if (subreplyId.match(/^[0-9a-fA-F]{24}$/)) {
+                const subreply = await subReply.findById(subreplyId);
+
+                if (subreply.likes.filter((like) => like.toString() === userId).length > 0) {
+                    subreply.likes.pull(userId)
+                }
+
+                if (subreply.dislike.filter((dislikes) => dislikes.toString() === userId).length > 0) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "Already vote"
+                    })
+                }
+
+                await subreply.dislike.unshift(userId)
+
+                await subreply.save()
+                return res.status(200).json({
+                    status: "success",
+                    message: "You successfully downvote"
+                })
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Thread not found or doesn't exist"
+                })
+            }
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                status: "error",
+                message: "Internal Server Error",
+            });
+        }
+    },
+    deleteDownvote: async(req, res) => {
+        const subreplyId = req.params.id
+        const userId = req.user.id
+        try {
+            if (subreplyId.match(/^[0-9a-fA-F]{24}$/)) {
+                const subreply = await subReply.findById(subreplyId);
+
+                if (subreply.dislike.filter((dislikes) => dislikes.toString() === userId).length === 0) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "There is no vote"
+                    })
+                }
+
+                await subreply.dislike.pull(userId)
+                await subreply.save()
+                return res.status(200).json({
+                    status: "success",
+                    message: "You successfully downvote"
+                })
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Thread not found or doesn't exist"
+                })
+            }
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                status: "error",
+                message: "Internal Server Error",
+            });
+        }
+    }
 };
