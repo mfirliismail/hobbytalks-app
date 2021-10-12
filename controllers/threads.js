@@ -51,12 +51,45 @@ module.exports = {
         }
     },
     readAllThreads: async(req, res) => {
+        const page = parseInt(req.query.page) || 1
+        const limit = 4
         try {
-            const thread = await Threads.find()
+
+            const thread = await Threads.find().populate({
+                path: "userId",
+                models: "Users",
+                select: {
+                    "name": 1,
+                    "email": 1,
+                    "avatar": 1
+                }
+            }).limit(limit).skip(limit * (page - 1))
+            const count = await Threads.count()
+
+            let next = page + 1
+            if (page * limit >= count) {
+                next = 0
+            }
+            let previous = 0
+            if (page > 1) {
+                previous = page - 1
+            }
+            let total = Math.ceil(count / limit)
+
+            if (page > total) {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "page doesnt exist"
+                })
+            }
             return res.status(200).json({
                 status: "success",
                 message: "Data retrieved successfully",
                 data: thread,
+                totalPage: total,
+                nextPage: next,
+                currentPage: page,
+                previousPage: previous
             });
         } catch (error) {
             console.log(error);
@@ -68,8 +101,37 @@ module.exports = {
     },
     searchThreads: async(req, res) => {
         const keyword = req.params.keyword;
+        const page = parseInt(req.query.page) || 1
+        const limit = 4
         try {
             const threads = await Threads.find({ "title": { $regex: new RegExp(keyword, "gi") } })
+                .populate({
+                    path: "userId",
+                    models: "Users",
+                    select: {
+                        "name": 1,
+                        "email": 1,
+                        "avatar": 1
+                    }
+                }).limit(limit).skip(limit * (page - 1))
+            const count = await Threads.count({ "title": { $regex: new RegExp(keyword, "gi") } })
+
+            let next = page + 1
+            if (page * limit >= count) {
+                next = 0
+            }
+            let previous = 0
+            if (page > 1) {
+                previous = page - 1
+            }
+            let total = Math.ceil(count / limit)
+
+            if (page > total) {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "page doesnt exist"
+                })
+            }
             if (threads.length == 0) {
                 return res.status(400).json({
                     status: "failed",
@@ -80,6 +142,10 @@ module.exports = {
             res.status(200).json({
                 status: "success",
                 data: threads,
+                totalPage: total,
+                nextPage: next,
+                currentPage: page,
+                previousPage: previous
             })
         } catch (error) {
             console.log(error)
