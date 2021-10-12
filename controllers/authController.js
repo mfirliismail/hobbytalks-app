@@ -1,12 +1,14 @@
 const Users = require('../models/Users')
-const {authHash} = require('../middlewares/auth')
+const {authHash, generateVerifCode} = require('../middlewares/auth')
+const { sendEmail } = require('./emailverified')
 const Joi = require('joi')
 require("dotenv").config()
 
 module.exports = {
     signUp: async (req, res) => {
         try {
-            const { email, name, password } = req.body
+            // let verifCode = generateVerifCode(10)
+            const { email, name, password} = req.body
 
             const schema = Joi.object({
                 name: Joi.string().min(6).required(),
@@ -43,11 +45,15 @@ module.exports = {
 
             const hashPassword = await authHash(password)
 
+            const verifCode = generateVerifCode(10)
+            
             const signUp = await Users.create({
                 name,
                 email,
-                password: hashPassword
+                password: hashPassword,
+                verifCode
             })
+            console.log("🚀 ~ file: authController.js ~ line 51 ~ signUp: ~ signUp", signUp)
 
             if(!signUp){
                 return res.status(400).json({
@@ -56,10 +62,13 @@ module.exports = {
                 })
             }
 
+            console.log("🚀 ~ file: authController.js ~ line 64 ~ signUp: ~ signUp", signUp)
+            
+            sendEmail(email, verifCode)
+
             res.status(200).json({
                 status: "Success",
                 message: "Succes Sign Up, check your Email",
-
             })
 
         } catch (error) {
@@ -84,19 +93,17 @@ module.exports = {
                 return res.status(400).json({
                     status : "failed",
                     message: "Invalid email or password",
-                    error: error["detail"][0]["message"]
+                    error: error["details"][0]["message"]
                 })
             }
             const checkEmail = await Users.findOne({
-                where: {
-                    email: body.email
-                }
+                email: email   
             });
+
             if(!checkEmail) {
                 return res.status(400).json({
                     status : "failed",
-                    message: "Invalid email or password",
-                    error: error["detail"][0]["message"]
+                    message: "Invalid email or password"
                 });
             }
             const checkPassword = await bcrypt.compare(body.password,
@@ -105,8 +112,7 @@ module.exports = {
             if(!checkPassword) {
                 return res.status(400).json({
                     status : "failed",
-                    message: "Invalid email or password",
-                    error: error["detail"][0]["message"]
+                    message: "Invalid email or password"
                 });
             }
             const payload = {
@@ -116,7 +122,7 @@ module.exports = {
 
             if(!Users.isVerified){
                 return res.status(401).json({
-                    message: "Your Email has not been verified. Please click on resend"
+                    message: "Your Email has not been verified. Please check your email"
                 })
             }
 

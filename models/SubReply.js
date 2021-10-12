@@ -22,7 +22,11 @@ const SubReplySchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "Users"
 
-    }]
+    }],
+    date: {
+        type: Date,
+        default: Date.now,
+    }
 })
 
-module.exports = SubReply = model('SubReply', SubReplySchema)
+module.exports = SubReply = mongoose.model('SubReply', SubReplySchema)

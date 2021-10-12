@@ -28,6 +28,9 @@ const UsersSchema = new Schema({
         type: Boolean,
         default: false
     },
+    verifCode: {
+        type: String
+    },
     categoryLike: [{
         type: Schema.Types.ObjectId,
         ref: "Category"
@@ -41,7 +44,5 @@ const UsersSchema = new Schema({
         ref: "Threads"
     }]
 })
-
-
 
 module.exports = Users = mongoose.model('Users', UsersSchema);
