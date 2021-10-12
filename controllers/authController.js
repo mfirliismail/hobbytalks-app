@@ -145,6 +145,7 @@ module.exports = {
                 const user = await Users.create({
                     name: req.user._json.name,
                     email: req.user._json.email,
+                    avatar: req.user._json.picture,
                     password: "undefined",
                 });
                 payload = {
@@ -154,20 +155,11 @@ module.exports = {
             }
 
             jwt.sign(payload, process.env.PWD_TOKEN, { expiresIn: 3600 * 24 }, (err, token) => {
-                return res.redirect('/api/v1/users/token/?token=' + token);
+                return res.redirect('/?token=' + token)
             });
         } catch (error) {
             console.log(error),
                 res.sendStatus(500)
         }
     },
-
-    googleToken: async(req, res) => {
-        const token = req.query.token;
-        res.status(200).json({
-            status: "success",
-            message: "successfully obtain token",
-            data: token
-        })
-    }
 }

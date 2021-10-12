@@ -50,16 +50,26 @@ module.exports = {
     editUser: async(req, res) => {
         const user = req.user
         const body = req.body
-        const file = req.file
+        let file
+
         try {
             console.log(req.file)
             const userFind = await Users.findById(user.id);
             if (!userFind) {
                 return res.status(401).json({ msg: "You Don't Owe This User" });
             }
+            if (req.file) {
+                file = req.file
+            } else {
+                file = userFind.avatar
+            }
+            if (!file.path) {
+                userFind.avatar = userFind.avatar
+            } else {
+                userFind.avatar = file.path
+            }
             userFind.name = body.name ? body.name : userFind.name
             userFind.password = body.password ? body.password : userFind.password
-            userFind.avatar = file.path ? file.path : userFind.avatar
             userFind.bio = body.bio ? body.bio : userFind.bio
 
             await userFind.save()
@@ -85,6 +95,12 @@ module.exports = {
             const userFind = await Users.findById(user.id);
             if (!userFind) {
                 return res.status(401).json({ msg: "You Don't Owe This User" });
+            }
+            if (!file) {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "please insert an image"
+                })
             }
             userFind.banner = file.path ? file.path : userFind.banner
             await userFind.save()
