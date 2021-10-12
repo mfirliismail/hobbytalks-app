@@ -96,6 +96,12 @@ module.exports = {
             if (!userFind) {
                 return res.status(401).json({ msg: "You Don't Owe This User" });
             }
+            if (!file) {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "please insert an image"
+                })
+            }
             userFind.banner = file.path ? file.path : userFind.banner
             await userFind.save()
             return res.status(200).json({
