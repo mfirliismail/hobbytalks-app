@@ -72,7 +72,6 @@ module.exports = {
                     message: "Replies retrieved successfully",
                     data: replies,
                     totalsubReply: findsubReply.length,
-                    totalReplies: findReplies.length,
                     totalPage: Math.ceil(findReplies.length / limit)
                 });
             } else {
