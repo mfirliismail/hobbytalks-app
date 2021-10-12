@@ -9,4 +9,9 @@ router.get('/search/:keyword', thread.searchThreads)
 router.put('/edit/:id', authToken, thread.updateThreads)
 router.delete('/delete/:id', authToken, thread.deleteThreads)
 
+router.put('/upvote/:id', authToken, thread.addLikes)
+router.delete('/upvote/:id', authToken, thread.deleteLikes)
+router.put('/downvote/:id', authToken, thread.addDislike)
+router.delete('/downvote/:id', authToken, thread.deleteDislike)
+
 module.exports = router
