@@ -1,14 +1,14 @@
 const Users = require('../models/Users')
-const { authHash } = require('../middlewares/auth')
+const {authHash, generateVerifCode} = require('../middlewares/auth')
+const { sendEmail } = require('./emailverified')
 const Joi = require('joi')
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
 require("dotenv").config()
 
 module.exports = {
     signUp: async(req, res) => {
         try {
-            const { email, name, password } = req.body
+            // let verifCode = generateVerifCode(10)
+            const { email, name, password} = req.body
 
             const schema = Joi.object({
                 name: Joi.string().min(6).required(),
@@ -39,17 +39,21 @@ module.exports = {
             if (checkEmail) {
                 return res.status(400).json({
                     status: "failed",
-                    message: `${email} already exists`
+                    message: `This ${email} address is already associated with another account`
                 })
             }
 
             const hashPassword = await authHash(password)
 
+            const verifCode = generateVerifCode(10)
+            
             const signUp = await Users.create({
                 name,
                 email,
-                password: hashPassword
+                password: hashPassword,
+                verifCode
             })
+            console.log("🚀 ~ file: authController.js ~ line 51 ~ signUp: ~ signUp", signUp)
 
             if (!signUp) {
                 return res.status(400).json({
@@ -58,10 +62,13 @@ module.exports = {
                 })
             }
 
+            console.log("🚀 ~ file: authController.js ~ line 64 ~ signUp: ~ signUp", signUp)
+            
+            sendEmail(email, verifCode)
+
             res.status(200).json({
                 status: "Success",
                 message: "Succes Sign Up, check your Email",
-                data: signUp
             })
 
         } catch (error) {
@@ -80,7 +87,8 @@ module.exports = {
                 email: Joi.string().email().required(),
                 password: Joi.string().min(8).required()
             });
-            const { error } = schema.validate({...req.body });
+
+            const { error } = schema.validate({ ...body });
 
             if (error) {
                 return res.status(400).json({
@@ -90,7 +98,7 @@ module.exports = {
                 })
             }
             const checkEmail = await Users.findOne({
-                email: email
+                email: email   
             });
 
             if (!checkEmail) {
@@ -99,9 +107,8 @@ module.exports = {
                     message: "Invalid email or password"
                 });
             }
-            console.log(checkEmail);
-            const checkPassword = await bcrypt.compare(password,
-                checkEmail.password);
+            const checkPassword = await bcrypt.compare(body.password,
+                checkEmail.dataValues.password);
 
             if (!checkPassword) {
                 return res.status(400).json({
@@ -110,10 +117,17 @@ module.exports = {
                 });
             }
             const payload = {
-                email: checkEmail.email,
-                id: checkEmail._id,
+                email: checkEmail.dataValues.email,
+                id: checkEmail.dataValues.id,
             };
-            jwt.sign(payload, process.env.PWD_TOKEN, { expiresIn: 3600 * 24 }, (err, token) => {
+
+            if(!Users.isVerified){
+                return res.status(401).json({
+                    message: "Your Email has not been verified. Please check your email"
+                })
+            }
+
+            jwt.sign(payload, process.env.PWD_TOKEN, { expiresIn: 3600 *24 }, (err, token) => {
                 return res.status(200).json({
                     status: "success",
                     message: "Logged in successfully",
@@ -122,7 +136,6 @@ module.exports = {
             });
 
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 status: "Failed",
                 message: "Internal Server Error"
