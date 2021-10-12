@@ -1,14 +1,16 @@
 const Users = require('../models/Users')
-const {authHash, generateVerifCode} = require('../middlewares/auth')
+const { authHash, generateVerifCode } = require('../middlewares/auth')
 const { sendEmail } = require('./emailverified')
 const Joi = require('joi')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 require("dotenv").config()
 
 module.exports = {
     signUp: async(req, res) => {
         try {
             // let verifCode = generateVerifCode(10)
-            const { email, name, password} = req.body
+            const { email, name, password } = req.body
 
             const schema = Joi.object({
                 name: Joi.string().min(6).required(),
@@ -46,7 +48,7 @@ module.exports = {
             const hashPassword = await authHash(password)
 
             const verifCode = generateVerifCode(10)
-            
+
             const signUp = await Users.create({
                 name,
                 email,
@@ -63,7 +65,7 @@ module.exports = {
             }
 
             console.log("🚀 ~ file: authController.js ~ line 64 ~ signUp: ~ signUp", signUp)
-            
+
             sendEmail(email, verifCode)
 
             res.status(200).json({
@@ -82,13 +84,14 @@ module.exports = {
 
     login: async(req, res, next) => {
         const { email, password } = req.body;
+        const body = req.body
         try {
             const schema = Joi.object({
                 email: Joi.string().email().required(),
                 password: Joi.string().min(8).required()
             });
 
-            const { error } = schema.validate({ ...body });
+            const { error } = schema.validate({...body });
 
             if (error) {
                 return res.status(400).json({
@@ -98,7 +101,7 @@ module.exports = {
                 })
             }
             const checkEmail = await Users.findOne({
-                email: email   
+                email: email
             });
 
             if (!checkEmail) {
@@ -108,7 +111,7 @@ module.exports = {
                 });
             }
             const checkPassword = await bcrypt.compare(body.password,
-                checkEmail.dataValues.password);
+                checkEmail.password);
 
             if (!checkPassword) {
                 return res.status(400).json({
@@ -117,17 +120,17 @@ module.exports = {
                 });
             }
             const payload = {
-                email: checkEmail.dataValues.email,
-                id: checkEmail.dataValues.id,
+                email: checkEmail.email,
+                id: checkEmail._id,
             };
 
-            if(!Users.isVerified){
+            if (!checkEmail.isVerified) {
                 return res.status(401).json({
                     message: "Your Email has not been verified. Please check your email"
                 })
             }
 
-            jwt.sign(payload, process.env.PWD_TOKEN, { expiresIn: 3600 *24 }, (err, token) => {
+            jwt.sign(payload, process.env.PWD_TOKEN, { expiresIn: 3600 * 24 }, (err, token) => {
                 return res.status(200).json({
                     status: "success",
                     message: "Logged in successfully",
@@ -136,6 +139,7 @@ module.exports = {
             });
 
         } catch (error) {
+            console.log(error)
             return res.status(500).json({
                 status: "Failed",
                 message: "Internal Server Error"

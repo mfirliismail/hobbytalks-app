@@ -13,7 +13,7 @@ const { verifAcc } = require('../controllers/emailverified')
 // })
 router.post('/signup', signUp)
 router.post('/login', login)
-router.post('/verif', verifAcc)
+router.get('/verif', verifAcc)
 router.get("/login/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 router.get("/failed", (req, res) => res.send("Failed to login, please try again"));
 router.get("/google/callback", passport.authenticate("google", { failureRedirect: "/api/v1/users/failed" }), googleLogin);
