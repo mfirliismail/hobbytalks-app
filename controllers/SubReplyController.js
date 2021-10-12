@@ -43,6 +43,8 @@ module.exports = {
         }
     },
     readAllSubReply: async(req, res) => {
+        const page = parseInt(req.query.page) || 1
+        const limit = parseInt(req.query.limit) || 10
         const id = req.params.replyId
         try {
             if (id.match(/^[0-9a-fA-F]{24}$/)) {
