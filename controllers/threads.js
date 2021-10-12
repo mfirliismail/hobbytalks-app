@@ -64,6 +64,7 @@ module.exports = {
                     "avatar": 1
                 }
             }).limit(limit).skip(limit * (page - 1))
+            const comments = await Comments.find({ threadId: thread.id })
             const count = await Threads.count()
 
             let next = page + 1
@@ -86,6 +87,7 @@ module.exports = {
                 status: "success",
                 message: "Data retrieved successfully",
                 data: thread,
+                totalComment: comments.length,
                 totalPage: total,
                 nextPage: next,
                 currentPage: page,
@@ -114,6 +116,7 @@ module.exports = {
                         "avatar": 1
                     }
                 }).limit(limit).skip(limit * (page - 1))
+            const comments = await Comments.find({ threadId: threads.id })
             const count = await Threads.count({ "title": { $regex: new RegExp(keyword, "gi") } })
 
             let next = page + 1
@@ -142,6 +145,7 @@ module.exports = {
             res.status(200).json({
                 status: "success",
                 data: threads,
+                totalComments: comments.length,
                 totalPage: total,
                 nextPage: next,
                 currentPage: page,
