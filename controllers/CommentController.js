@@ -77,7 +77,6 @@ module.exports = {
                     message: "Comment retrieved successfully",
                     data: comments,
                     totalReply: findReply.length,
-                    totalComment: findComments.length,
                     totalPage: Math.ceil(findComments.length / limit)
                 });
             } else {
