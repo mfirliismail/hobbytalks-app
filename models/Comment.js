@@ -18,11 +18,13 @@ const CommentSchema = new Schema({
         ref: "Users"
     }],
     dislike: [{
-
         type: Schema.Types.ObjectId,
         ref: "Users"
-
-    }],
+    }], //=========================
+    reply: [{
+        type: Schema.Types.ObjectId,
+        ref: "Reply"
+    }], //=========================
     date: {
         type: Date,
         default: Date.now,

@@ -7,14 +7,14 @@ module.exports = {
         const transporter = nodeMailer.createTransport({
             service: "Gmail",
             auth: {
-                user: "HobbyTalkGlints@gmail.com",
-                pass: "Hobbytalk14"
+                user: process.env.EMAIL,
+                pass: process.env.PASS_EMAIL
             }
         })
 
         const link = `http://localhost:5000/api/v1/users/verif?email=${email}&verifCode=${verifCode}`
         let mailOptions = {
-            from: "HobbyTalkGlints@gmail.com",
+            from: process.env.EMAIL,
             to: `${email}`,
             subject: "verified account Hobby Talks",
             html: "<button><a href="+link+">Click To Verified</a></button>"

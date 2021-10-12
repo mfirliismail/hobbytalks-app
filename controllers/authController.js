@@ -5,7 +5,7 @@ const Joi = require('joi')
 require("dotenv").config()
 
 module.exports = {
-    signUp: async (req, res) => {
+    signUp: async(req, res) => {
         try {
             // let verifCode = generateVerifCode(10)
             const { email, name, password} = req.body
@@ -16,15 +16,15 @@ module.exports = {
                 password: Joi.string().min(8).required()
             })
 
-            const {error} = schema.validate({
+            const { error } = schema.validate({
                 name: name,
                 email: email,
                 password: password
             }, {
-                AbortEarly:false
+                AbortEarly: false
             })
 
-            if(error){
+            if (error) {
                 return res.status(400).json({
                     status: "failed",
                     message: "input uncorrectly",
@@ -33,10 +33,10 @@ module.exports = {
             }
 
             const checkEmail = await Users.findOne({
-                email:email
+                email: email
             })
 
-            if(checkEmail) {
+            if (checkEmail) {
                 return res.status(400).json({
                     status: "failed",
                     message: `This ${email} address is already associated with another account`
@@ -55,7 +55,7 @@ module.exports = {
             })
             console.log("🚀 ~ file: authController.js ~ line 51 ~ signUp: ~ signUp", signUp)
 
-            if(!signUp){
+            if (!signUp) {
                 return res.status(400).json({
                     status: "failed",
                     message: "Cannot Sign Up"
@@ -80,18 +80,19 @@ module.exports = {
         }
     },
 
-    login : async (req, res, next) => {
+    login: async(req, res, next) => {
         const { email, password } = req.body;
         try {
             const schema = Joi.object({
-                email : Joi.string().email().required(),
+                email: Joi.string().email().required(),
                 password: Joi.string().min(8).required()
             });
+
             const { error } = schema.validate({ ...body });
 
-            if(error) {
+            if (error) {
                 return res.status(400).json({
-                    status : "failed",
+                    status: "failed",
                     message: "Invalid email or password",
                     error: error["details"][0]["message"]
                 })
@@ -100,18 +101,18 @@ module.exports = {
                 email: email   
             });
 
-            if(!checkEmail) {
+            if (!checkEmail) {
                 return res.status(400).json({
-                    status : "failed",
+                    status: "failed",
                     message: "Invalid email or password"
                 });
             }
             const checkPassword = await bcrypt.compare(body.password,
                 checkEmail.dataValues.password);
 
-            if(!checkPassword) {
+            if (!checkPassword) {
                 return res.status(400).json({
-                    status : "failed",
+                    status: "failed",
                     message: "Invalid email or password"
                 });
             }
@@ -126,19 +127,52 @@ module.exports = {
                 })
             }
 
-            jwt.sign(payload,process.env.PWD_TOKEN, { expiresIn: 3600*24 }, (err, token) => {
+            jwt.sign(payload, process.env.PWD_TOKEN, { expiresIn: 3600 *24 }, (err, token) => {
                 return res.status(200).json({
                     status: "success",
                     message: "Logged in successfully",
                     data: token,
                 });
             });
-        
+
         } catch (error) {
             return res.status(500).json({
                 status: "Failed",
                 message: "Internal Server Error"
             })
         }
-    }
+    },
+
+    googleLogin: async(req, res) => {
+        let payload;
+        try {
+            const checkEmail = await Users.findOne({
+                email: req.user._json.email
+            });
+            if (checkEmail) {
+                payload = {
+                    email: checkEmail.email,
+                    id: checkEmail.id,
+                };
+            } else {
+                const user = await Users.create({
+                    name: req.user._json.name,
+                    email: req.user._json.email,
+                    avatar: req.user._json.picture,
+                    password: "undefined",
+                });
+                payload = {
+                    email: user.email,
+                    id: user.id,
+                };
+            }
+
+            jwt.sign(payload, process.env.PWD_TOKEN, { expiresIn: 3600 * 24 }, (err, token) => {
+                return res.redirect('/?token=' + token)
+            });
+        } catch (error) {
+            console.log(error),
+                res.sendStatus(500)
+        }
+    },
 }
