@@ -44,9 +44,12 @@ module.exports = {
         }
     },
     readAllComments: async(req, res) => {
+        const page = parseInt(req.query.page) || 1
+        const limit = parseInt(req.query.limit) || 10
         const id = req.params.id
         try {
             if (id.match(/^[0-9a-fA-F]{24}$/)) {
+                const findComments = await comment.find({ threadId: id })
                 const comments = await comment.find({ threadId: id }).populate({
                     path: "reply",
                     populate: ({
@@ -61,7 +64,7 @@ module.exports = {
                         "email": 1,
                         "avatar": 1
                     }
-                })
+                }).limit(limit * page)
                 if (comments.length == 0) {
                     return res.status(400).json({
                         status: "failed",
@@ -73,7 +76,9 @@ module.exports = {
                     status: "success",
                     message: "Comment retrieved successfully",
                     data: comments,
-                    totalReply: findReply.length
+                    totalReply: findReply.length,
+                    totalComment: findComments.length,
+                    totalPage: Math.ceil(findComments.length / limit)
                 });
             } else {
                 return res.status(400).json({
