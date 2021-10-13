@@ -27,7 +27,7 @@ module.exports = {
                 await findComment.save()
                 return res.status(200).json({
                     status: "success",
-                    message: "success like thread"
+                    message: "success like Comment"
                 })
             } else {
                 return res.status(400).json({
