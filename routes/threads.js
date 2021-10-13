@@ -9,6 +9,7 @@ router.get('/all', thread.readAllThreads)
 router.get('/search/:keyword', thread.searchThreads)
 router.put('/edit/:id', authToken, thread.updateThreads)
 router.delete('/delete/:id', authToken, thread.deleteThreads)
+router.get('/get/:id', thread.getOneThread)
 
 router.put('/upvote/:id', authToken, thread.addLikes)
 router.delete('/upvote/:id', authToken, thread.deleteLikes)
