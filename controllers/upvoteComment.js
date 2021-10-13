@@ -1,4 +1,4 @@
-const comment = require ("../models/Comment")
+const comment = require("../models/Comment")
 module.exports = {
     addLikes: async(req, res) => {
         const id = req.params.id
@@ -9,7 +9,7 @@ module.exports = {
                 if (!findComment) {
                     return res.status(400).json({
                         status: "failed",
-                        message: "cannot found thread"
+                        message: "cannot found comment"
                     })
                 }
                 if (findComment.likes.filter((e) => e.toString() == userId).length > 0) {
