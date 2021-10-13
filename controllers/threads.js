@@ -396,10 +396,10 @@ module.exports = {
             if (id.match(/^[0-9a-fA-F]{24}$/)) {
                 const findThread = await Threads.findById(id).populate({
                     path: "comment",
-                    populate: ({
+                    populate: ([{
                         path: "reply",
                         model: "Reply",
-                        populate: ({
+                        populate: ([{
                             path: "subReply",
                             model: "SubReply",
                             populate: ({
@@ -411,8 +411,7 @@ module.exports = {
                                     "avatar": 1
                                 }
                             })
-                        }),
-                        populate: ({
+                        }, {
                             path: "userId",
                             models: "Users",
                             select: {
@@ -420,9 +419,8 @@ module.exports = {
                                 "email": 1,
                                 "avatar": 1
                             }
-                        })
-                    }),
-                    populate: ({
+                        }])
+                    }, {
                         path: "userId",
                         models: "Users",
                         select: {
@@ -430,7 +428,15 @@ module.exports = {
                             "email": 1,
                             "avatar": 1
                         }
-                    })
+                    }])
+                }).populate({
+                    path: "userId",
+                    models: "Users",
+                    select: {
+                        "name": 1,
+                        "email": 1,
+                        "avatar": 1
+                    }
                 })
                 if (!findThread) {
                     return res.status(400).json({
