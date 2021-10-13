@@ -9,6 +9,7 @@ module.exports = {
     createThreads: async(req, res) => {
         const { title, content, category } = req.body
         const userId = req.user.id
+        const file = req.file
         try {
             const schema = joi.object({
                 title: joi.string(),
@@ -27,7 +28,9 @@ module.exports = {
             const createthread = await Threads.create({
                 userId: userId,
                 title,
-                content
+                content,
+                category,
+                image: file.path
             })
             if (!createthread) {
                 return res.status(400).json({
@@ -383,6 +386,74 @@ module.exports = {
             console.log(error)
             return res.status(500).json({
                 status: 'failed',
+                message: "Internal Server Error"
+            })
+        }
+    },
+    getOneThread: async(req, res) => {
+        const id = req.params.id
+        try {
+            if (id.match(/^[0-9a-fA-F]{24}$/)) {
+                const findThread = await Threads.findById(id).populate({
+                    path: "comment",
+                    populate: ({
+                        path: "reply",
+                        model: "Reply",
+                        populate: ({
+                            path: "subReply",
+                            model: "SubReply",
+                            populate: ({
+                                path: "userId",
+                                models: "Users",
+                                select: {
+                                    "name": 1,
+                                    "email": 1,
+                                    "avatar": 1
+                                }
+                            })
+                        }),
+                        populate: ({
+                            path: "userId",
+                            models: "Users",
+                            select: {
+                                "name": 1,
+                                "email": 1,
+                                "avatar": 1
+                            }
+                        })
+                    }),
+                    populate: ({
+                        path: "userId",
+                        models: "Users",
+                        select: {
+                            "name": 1,
+                            "email": 1,
+                            "avatar": 1
+                        }
+                    })
+                })
+                if (!findThread) {
+                    return res.status(400).json({
+                        status: 'failed',
+                        message: 'cannot found thread'
+                    })
+                }
+
+                return res.status(200).json({
+                    status: "success",
+                    message: "success retrieved data",
+                    data: findThread
+                })
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Thread not match"
+                })
+            }
+
+        } catch (error) {
+            return res.status(500).json({
+                status: "failed",
                 message: "Internal Server Error"
             })
         }

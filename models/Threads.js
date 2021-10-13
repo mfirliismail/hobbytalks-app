@@ -14,6 +14,9 @@ const ThreadsSchema = new Schema({
         type: String,
         required: true
     },
+    image: {
+        type: string
+    },
     category: {
         type: Schema.Types.ObjectId,
         ref: "Category"
