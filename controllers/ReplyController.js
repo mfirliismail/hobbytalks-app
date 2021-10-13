@@ -190,8 +190,11 @@ module.exports = {
                 if (findReply.dislike.filter((e) => e.toString() == userId).length > 0) {
                     findReply.dislike.pull(userId)
                 }
+                
+                await reply.likes.unshif(userId)
 
                 await findReply.save()
+                
                 return res.status(200).json({
                     status: "success",
                     message: "success like Reply"
