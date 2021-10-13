@@ -463,5 +463,36 @@ module.exports = {
                 message: "Internal Server Error"
             })
         }
+    },
+    moreFromUser: async(req, res) => {
+        const id = req.params.userId
+        const threadId = req.params.threadId
+        try {
+            if (id.match(/^[0-9a-fA-F]{24}$/)) {
+                const threads = await Threads.find({ userId: id, _id: { $ne: threadId } }).populate('comment').limit(3)
+                if (!threads) {
+                    return res.status(400).json({
+                        status: 'failed',
+                        message: "theres no thread from user"
+                    })
+                }
+
+                return res.status(200).json({
+                    status: "success",
+                    message: "Success retrieved data",
+                    data: threads
+                })
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Thread not match"
+                })
+            }
+        } catch (error) {
+            return res.status(500).json({
+                status: "failed",
+                message: "Internal Server Error"
+            })
+        }
     }
 }
