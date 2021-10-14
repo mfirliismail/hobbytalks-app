@@ -30,5 +30,12 @@ const ReplySchema = new Schema({
         default: Date.now,
     }
 })
-
+ReplySchema.virtual('subReplyCount', {
+    ref: "SubReply",
+    localField: "subReply",
+    foreignField: "replyId",
+    count: true
+})
+ReplySchema.set("toObject", { virtuals: true })
+ReplySchema.set("toJSON", { virtuals: true })
 module.exports = Reply = mongoose.model('Reply', ReplySchema)
