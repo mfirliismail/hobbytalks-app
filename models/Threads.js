@@ -39,6 +39,13 @@ const ThreadsSchema = new Schema({
     },
 })
 
-
+ThreadsSchema.virtual('commentCount', {
+    ref: "Comments",
+    localField: "comment",
+    foreignField: "threadId",
+    count: true
+})
+ThreadsSchema.set("toObject", { virtuals: true })
+ThreadsSchema.set("toJSON", { virtuals: true })
 
 module.exports = Threads = mongoose.model('Threads', ThreadsSchema);

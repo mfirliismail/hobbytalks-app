@@ -437,13 +437,15 @@ module.exports = {
                         "email": 1,
                         "avatar": 1
                     }
-                })
+                }).populate("commentCount")
                 if (!findThread) {
                     return res.status(400).json({
                         status: 'failed',
                         message: 'cannot found thread'
                     })
                 }
+                console.log(findThread.commentCount)
+                findThread.commentSum = findThread.commentCount
 
                 return res.status(200).json({
                     status: "success",
@@ -458,6 +460,7 @@ module.exports = {
             }
 
         } catch (error) {
+            console.log(error)
             return res.status(500).json({
                 status: "failed",
                 message: "Internal Server Error"
