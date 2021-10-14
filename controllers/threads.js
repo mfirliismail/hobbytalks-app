@@ -58,7 +58,7 @@ module.exports = {
         const limit = 4
         try {
 
-            const thread = await Threads.find().populate({
+            const thread = await Threads.find().sort({ date: 1 }).populate({
                 path: "userId",
                 models: "Users",
                 select: {
@@ -457,6 +457,56 @@ module.exports = {
                 })
             }
 
+        } catch (error) {
+            return res.status(500).json({
+                status: "failed",
+                message: "Internal Server Error"
+            })
+        }
+    },
+    getThreadNewest: async(req, res) => {
+        const page = parseInt(req.query.page) || 1
+        const limit = 4
+        try {
+
+            const thread = await Threads.find().sort({ date: -1 }).populate({
+                path: "userId",
+                models: "Users",
+                select: {
+                    "name": 1,
+                    "email": 1,
+                    "avatar": 1
+                }
+            }).limit(limit).skip(limit * (page - 1))
+            const comments = await Comments.find({ threadId: thread.id })
+            const count = await Threads.count()
+
+            let next = page + 1
+            if (page * limit >= count) {
+                next = 0
+            }
+            let previous = 0
+            if (page > 1) {
+                previous = page - 1
+            }
+            let total = Math.ceil(count / limit)
+
+            if (page > total) {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "page doesnt exist"
+                })
+            }
+            return res.status(200).json({
+                status: "success",
+                message: "Data retrieved successfully",
+                data: thread,
+                totalComment: comments.length,
+                totalPage: total,
+                nextPage: next,
+                currentPage: page,
+                previousPage: previous
+            });
         } catch (error) {
             return res.status(500).json({
                 status: "failed",
