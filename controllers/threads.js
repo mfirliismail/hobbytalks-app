@@ -549,6 +549,32 @@ module.exports = {
         }
     },
     getThreadTrending: async(req, res) => {
+        const limit = 7
+        try {
+            const thread = await Threads.find().sort({ likes: -1 }).populate([{
+                    path: "userId",
+                    models: "Users",
+                    select: {
+                        "name": 1,
+                        "email": 1,
+                        "avatar": 1
+                    }
+                }, "commentCount", "likeCount", "dislikeCount"]).limit(limit)
+                .select(["title", "likes", "likeCount"])
+            return res.status(200).json({
+                status: "success",
+                message: "Data retrieved successfully",
+                data: thread
+            });
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                status: "error",
+                message: "Internal Server Error",
+            });
+        }
+    },
+    getThreadMostPopular: async(req, res) => {
         const page = parseInt(req.query.page) || 1
         const limit = 4
         try {
@@ -583,9 +609,6 @@ module.exports = {
                 status: "success",
                 message: "Data retrieved successfully",
                 data: thread,
-                totalComment: comments.length,
-                totalUpvote: Likes.length,
-                totalDownvote: Dislikes.length,
                 totalPage: total,
                 nextPage: next,
                 currentPage: page,
@@ -598,5 +621,5 @@ module.exports = {
                 message: "Internal Server Error",
             });
         }
-    },
+    }
 }
