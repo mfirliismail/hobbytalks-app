@@ -58,7 +58,7 @@ module.exports = {
         const limit = 4
         try {
 
-            const thread = await Threads.find().sort({ date: 1 }).populate({
+            const thread = await Threads.find().sort({ date: 1 }).populate([{
                 path: "userId",
                 models: "Users",
                 select: {
@@ -66,7 +66,7 @@ module.exports = {
                     "email": 1,
                     "avatar": 1
                 }
-            }).limit(limit).skip(limit * (page - 1))
+            }, "commentCount"]).limit(limit).skip(limit * (page - 1))
             const comments = await Comments.find({ threadId: thread.id })
             const count = await Threads.count()
 
@@ -419,7 +419,7 @@ module.exports = {
                                 "email": 1,
                                 "avatar": 1
                             }
-                        }])
+                        }, "subReplyCount"])
                     }, {
                         path: "userId",
                         models: "Users",
@@ -428,7 +428,7 @@ module.exports = {
                             "email": 1,
                             "avatar": 1
                         }
-                    }])
+                    }, "replyCount"])
                 }).populate({
                     path: "userId",
                     models: "Users",

@@ -31,4 +31,12 @@ const CommentSchema = new Schema({
     }
 })
 
+CommentSchema.virtual('replyCount', {
+    ref: "Reply",
+    localField: "reply",
+    foreignField: "commentId",
+    count: true
+})
+CommentSchema.set("toObject", { virtuals: true })
+CommentSchema.set("toJSON", { virtuals: true })
 module.exports = Comments = mongoose.model('Comments', CommentSchema)
