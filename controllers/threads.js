@@ -545,5 +545,69 @@ module.exports = {
                 message: "Internal Server Error"
             })
         }
-    }
+    },
+    getThreadTrending: async(req, res) => {
+        const page = parseInt(req.query.page) || 1
+        const limit = 4
+        try {
+            const thread = await Threads.find().sort({ likes: -1 }).populate({
+                path: "userId",
+                models: "Users",
+                select: {
+                    "name": 1,
+                    "email": 1,
+                    "avatar": 1
+                }
+            }).limit(limit).skip(limit * (page - 1))
+            const CountThread = await Threads.find()
+            const comments = await Comments.find({ threadId: thread.id })
+            const count = await Threads.count()
+            let Likes = []
+            let Dislikes = []
+            CountThread.forEach(el => {
+                if (el.likes.length > 0) {
+                    Likes.push(...el.likes)
+                }
+            })
+            CountThread.forEach(el => {
+                if (el.dislike.length > 0) {
+                    Dislikes.push(...el.dislike)
+                }
+            })
+            let next = page + 1
+            if (page * limit >= count) {
+                next = 0
+            }
+            let previous = 0
+            if (page > 1) {
+                previous = page - 1
+            }
+            let total = Math.ceil(count / limit)
+
+            if (page > total) {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "page doesnt exist"
+                })
+            }
+            return res.status(200).json({
+                status: "success",
+                message: "Data retrieved successfully",
+                data: thread,
+                totalComment: comments.length,
+                totalUpvote: Likes.length,
+                totalDownvote: Dislikes.length,
+                totalPage: total,
+                nextPage: next,
+                currentPage: page,
+                previousPage: previous
+            });
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                status: "error",
+                message: "Internal Server Error",
+            });
+        }
+    },
 }
