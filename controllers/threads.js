@@ -66,7 +66,7 @@ module.exports = {
                     "email": 1,
                     "avatar": 1
                 }
-            }, "commentCount"]).limit(limit).skip(limit * (page - 1))
+            }, "commentCount", "likeCount", "dislikeCount"]).limit(limit).skip(limit * (page - 1))
             const comments = await Comments.find({ threadId: thread.id })
             const count = await Threads.count()
 
@@ -419,7 +419,7 @@ module.exports = {
                                 "email": 1,
                                 "avatar": 1
                             }
-                        }, "subReplyCount"])
+                        }, "subReplyCount", "likeCount", "dislikeCount"])
                     }, {
                         path: "userId",
                         models: "Users",
@@ -428,7 +428,7 @@ module.exports = {
                             "email": 1,
                             "avatar": 1
                         }
-                    }, "replyCount"])
+                    }, "replyCount", "likeCount", "dislikeCount"])
                 }).populate({
                     path: "userId",
                     models: "Users",
@@ -437,14 +437,13 @@ module.exports = {
                         "email": 1,
                         "avatar": 1
                     }
-                }).populate("commentCount")
+                }).populate(["commentCount", "likeCount", "dislikeCount"])
                 if (!findThread) {
                     return res.status(400).json({
                         status: 'failed',
                         message: 'cannot found thread'
                     })
                 }
-                console.log(findThread.commentCount)
                 findThread.commentSum = findThread.commentCount
 
                 return res.status(200).json({
@@ -472,7 +471,7 @@ module.exports = {
         const limit = 4
         try {
 
-            const thread = await Threads.find().sort({ date: -1 }).populate({
+            const thread = await Threads.find().sort({ date: -1 }).populate([{
                 path: "userId",
                 models: "Users",
                 select: {
@@ -480,7 +479,7 @@ module.exports = {
                     "email": 1,
                     "avatar": 1
                 }
-            }).limit(limit).skip(limit * (page - 1))
+            }, "commentCount", "likeCount", "dislikeCount"]).limit(limit).skip(limit * (page - 1))
             const comments = await Comments.find({ threadId: thread.id })
             const count = await Threads.count()
 
@@ -523,7 +522,7 @@ module.exports = {
         const threadId = req.params.threadId
         try {
             if (id.match(/^[0-9a-fA-F]{24}$/)) {
-                const threads = await Threads.find({ userId: id, _id: { $ne: threadId } }).populate('comment').limit(3)
+                const threads = await Threads.find({ userId: id, _id: { $ne: threadId } }).populate(['commentCount', "likeCount", "dislikeCount"]).limit(3)
                 if (!threads) {
                     return res.status(400).json({
                         status: 'failed',
@@ -553,7 +552,7 @@ module.exports = {
         const page = parseInt(req.query.page) || 1
         const limit = 4
         try {
-            const thread = await Threads.find().sort({ likes: -1 }).populate({
+            const thread = await Threads.find().sort({ likes: -1 }).populate([{
                 path: "userId",
                 models: "Users",
                 select: {
@@ -561,22 +560,9 @@ module.exports = {
                     "email": 1,
                     "avatar": 1
                 }
-            }).limit(limit).skip(limit * (page - 1))
-            const CountThread = await Threads.find()
+            }, "commentCount", "likeCount", "dislikeCount"]).limit(limit).skip(limit * (page - 1))
             const comments = await Comments.find({ threadId: thread.id })
             const count = await Threads.count()
-            let Likes = []
-            let Dislikes = []
-            CountThread.forEach(el => {
-                if (el.likes.length > 0) {
-                    Likes.push(...el.likes)
-                }
-            })
-            CountThread.forEach(el => {
-                if (el.dislike.length > 0) {
-                    Dislikes.push(...el.dislike)
-                }
-            })
             let next = page + 1
             if (page * limit >= count) {
                 next = 0

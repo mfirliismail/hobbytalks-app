@@ -30,11 +30,22 @@ const CommentSchema = new Schema({
         default: Date.now,
     }
 })
-
 CommentSchema.virtual('replyCount', {
     ref: "Reply",
     localField: "reply",
     foreignField: "commentId",
+    count: true
+})
+CommentSchema.virtual('likeCount', {
+    ref: "Comments",
+    localField: "likes",
+    foreignField: "Users",
+    count: true
+})
+CommentSchema.virtual('dislikeCount', {
+    ref: "Comments",
+    localField: "dislike",
+    foreignField: "Users",
     count: true
 })
 CommentSchema.set("toObject", { virtuals: true })

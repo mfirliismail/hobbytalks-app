@@ -38,11 +38,22 @@ const ThreadsSchema = new Schema({
         default: Date.now,
     },
 })
-
 ThreadsSchema.virtual('commentCount', {
     ref: "Comments",
     localField: "comment",
     foreignField: "threadId",
+    count: true
+})
+ThreadsSchema.virtual('likeCount', {
+    ref: "Threads",
+    localField: "likes",
+    foreignField: "Users",
+    count: true
+})
+ThreadsSchema.virtual('dislikeCount', {
+    ref: "Threads",
+    localField: "dislike",
+    foreignField: "Users",
     count: true
 })
 ThreadsSchema.set("toObject", { virtuals: true })

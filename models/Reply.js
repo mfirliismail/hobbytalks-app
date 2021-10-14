@@ -36,6 +36,18 @@ ReplySchema.virtual('subReplyCount', {
     foreignField: "replyId",
     count: true
 })
+ReplySchema.virtual('likeCount', {
+    ref: "Reply",
+    localField: "likes",
+    foreignField: "Users",
+    count: true
+})
+ReplySchema.virtual('dislikeCount', {
+    ref: "Reply",
+    localField: "dislike",
+    foreignField: "Users",
+    count: true
+})
 ReplySchema.set("toObject", { virtuals: true })
 ReplySchema.set("toJSON", { virtuals: true })
 module.exports = Reply = mongoose.model('Reply', ReplySchema)
