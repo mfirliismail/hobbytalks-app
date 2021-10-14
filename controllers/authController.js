@@ -41,7 +41,7 @@ module.exports = {
             if (checkEmail) {
                 return res.status(400).json({
                     status: "failed",
-                    message: `This ${email} address is already associated with another account`
+                    message: `This email ${email} address is already associated with another account`
                 })
             }
 

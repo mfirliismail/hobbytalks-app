@@ -1,9 +1,12 @@
 const nodeMailer = require('nodemailer')
 const User = require('../models/Users')
-const jwt = require
+const hbs = require('nodemailer-express-handlebars')
+const Jwt = require('jsonwebtoken')
 
 module.exports = {
     sendEmail: async (email, verifCode) => {
+        let link
+
         const transporter = nodeMailer.createTransport({
             service: "Gmail",
             auth: {
@@ -12,12 +15,27 @@ module.exports = {
             }
         })
 
-        const link = `http://localhost:5000/api/v1/users/verif?email=${email}&verifCode=${verifCode}`
+        transporter.use(
+            "compile",
+            hbs({
+                viewEngine: {
+                    extname: ".hbs",
+                    partialsDir: '../backendhobbytalk/templates/',
+                    layoutsDir: '../backendhobbytalk/templates/',
+                    defaultLayout: 'email'
+                },
+                viewPath: '../backendhobbytalk/templates/',
+                extName: '.hbs'
+            })
+        )
+
+        link = `http://localhost:5000/api/v1/users/verif?email=${email}&verifCode=${verifCode}`
         let mailOptions = {
             from: process.env.EMAIL,
             to: `${email}`,
             subject: "verified account Hobby Talks",
-            html: "<button><a href="+link+">Click To Verified</a></button>"
+            template: `email`,
+            context: {link}
         }
 
         transporter.sendMail(mailOptions, (error, info) => {
@@ -53,11 +71,20 @@ module.exports = {
 
             user.isVerified = true
             await user.save()
+            
+            //mengubah jadi token
+            const payload = {
+                id: user._id,
+                email: user.email
+            }
 
-            res.status(200).json({ 
-                status: "success",
-                message: "Account verification success",
-                data: User
+            //method sign dari jwt
+            Jwt.sign(payload, process.env.PWD_TOKEN, {expiresIn: 3600 * 24}, (error, token) => {
+                res.status(200).json({
+                    status: "success",
+                    message: "Account verification success",
+                    data: token
+                })
             })
 
         } catch (error) {
