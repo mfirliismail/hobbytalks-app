@@ -51,7 +51,7 @@ module.exports = {
                 const findReplies = await reply.find({ commentId: id })
                 const replies = await reply.find({ commentId: id }).populate({
                     path: "subReply"
-                }).populate({
+                }).populate([{
                     path: "userId",
                     models: "Users",
                     select: {
@@ -59,7 +59,7 @@ module.exports = {
                         "email": 1,
                         "avatar": 1
                     }
-                }).limit(limit * page);
+                }, "likeCount", "dislikeCount"]).limit(limit * page);
                 if (replies.length == 0) {
                     return res.status(400).json({
                         status: "failed",
@@ -164,14 +164,12 @@ module.exports = {
             });
         }
     },
-
-    
     addUpVote: async(req, res) => {
         const id = req.params.id
         const userId = req.user.id
-        
+
         try {
-            if(id.match(/^[0-9a-fA-F]{24}$/)) {
+            if (id.match(/^[0-9a-fA-F]{24}$/)) {
                 const findReply = await reply.findById(id)
                 if (!findReply) {
                     return res.status(400).json({
@@ -190,11 +188,11 @@ module.exports = {
                 if (findReply.dislike.filter((e) => e.toString() == userId).length > 0) {
                     findReply.dislike.pull(userId)
                 }
-                
+
                 await reply.likes.unshif(userId)
 
                 await findReply.save()
-                
+
                 return res.status(200).json({
                     status: "success",
                     message: "success like Reply"
@@ -204,7 +202,7 @@ module.exports = {
                 return res.status(400).json({
                     status: "failed",
                     message: "Reply not match"
-                }) 
+                })
             }
         } catch (error) {
             console.log(error)
@@ -214,7 +212,6 @@ module.exports = {
             })
         }
     },
-
     deleteUpVote: async(req, res) => {
         const id = req.params.id
         const userId = req.user.id
@@ -257,7 +254,6 @@ module.exports = {
             })
         }
     },
-
     addDownVote: async(req, res) => {
         const id = req.params.id
         const userId = req.user.id
@@ -303,7 +299,6 @@ module.exports = {
             })
         }
     },
-
     deleteDownVote: async(req, res) => {
         const id = req.params.id
         const userId = req.user.id

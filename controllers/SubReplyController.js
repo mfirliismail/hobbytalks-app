@@ -49,7 +49,7 @@ module.exports = {
         try {
             if (id.match(/^[0-9a-fA-F]{24}$/)) {
                 const findSubReply = await subReply.find({ replyId: id })
-                const subreplies = await subReply.find({ replyId: id }).populate({
+                const subreplies = await subReply.find({ replyId: id }).populate([{
                     path: 'userId',
                     model: "Users",
                     select: {
@@ -57,7 +57,7 @@ module.exports = {
                         "email": 1,
                         "avatar": 1
                     }
-                }).limit(limit * page)
+                }, "likeCount", "dislikeCount"]).limit(limit * page)
                 if (subreplies.length == 0) {
                     return res.status(400).json({
                         status: "failed",

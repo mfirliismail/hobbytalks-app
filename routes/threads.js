@@ -12,6 +12,8 @@ router.delete('/delete/:id', authToken, thread.deleteThreads)
 router.get('/get/:id', thread.getOneThread)
 router.get('/newest', thread.getThreadNewest)
 router.get('/more/:userId/:threadId', thread.moreFromUser)
+router.get('/trending', thread.getThreadTrending)
+router.get('/mostpopular', thread.getThreadMostPopular)
 
 router.put('/upvote/:id', authToken, thread.addLikes)
 router.delete('/upvote/:id', authToken, thread.deleteLikes)
