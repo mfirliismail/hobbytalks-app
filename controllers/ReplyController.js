@@ -164,4 +164,186 @@ module.exports = {
             });
         }
     },
+
+    
+    addUpVote: async(req, res) => {
+        const id = req.params.id
+        const userId = req.user.id
+        
+        try {
+            if(id.match(/^[0-9a-fA-F]{24}$/)) {
+                const findReply = await reply.findById(id)
+                if (!findReply) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "Cannot find reply"
+                    })
+                }
+
+                if (findReply.likes.filter((e) => e.toString() == userId).length > 0) {
+                    return res.status(400).json({
+                        status: "Failled",
+                        message: "Reply already liked"
+                    })
+                }
+
+                if (findReply.dislike.filter((e) => e.toString() == userId).length > 0) {
+                    findReply.dislike.pull(userId)
+                }
+                
+                await reply.likes.unshif(userId)
+
+                await findReply.save()
+                
+                return res.status(200).json({
+                    status: "success",
+                    message: "success like Reply"
+                })
+
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Reply not match"
+                }) 
+            }
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({
+                status: 'failed',
+                message: "Internal Server Error"
+            })
+        }
+    },
+
+    deleteUpVote: async(req, res) => {
+        const id = req.params.id
+        const userId = req.user.id
+        try {
+            if (id.match(/^[0-9a-fA-F]{24}$/)) {
+                const findReply = await reply.findById(id)
+                if (!findReply) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "cannot found thread"
+                    })
+                }
+                if (findReply.likes.filter((e) => e.toString() == userId).length === 0) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "reply has not been liked"
+                    })
+                }
+
+                await findReply.likes.pull(userId)
+
+                await findReply.save()
+                return res.status(200).json({
+                    status: "success",
+                    message: "success delete like"
+                })
+
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Thread not match"
+                })
+            }
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({
+                status: 'failed',
+                message: "Internal Server Error"
+            })
+        }
+    },
+
+    addDownVote: async(req, res) => {
+        const id = req.params.id
+        const userId = req.user.id
+        try {
+            if (id.match(/^[0-9a-fA-F]{24}$/)) {
+                const findReply = await reply.findById(id)
+                if (!findReply) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "cannot found thread"
+                    })
+                }
+                if (findReply.dislike.filter((e) => e.toString() == userId).length > 0) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "reply already disliked"
+                    })
+                }
+                if (findReply.likes.filter((e) => e.toString() == userId).length > 0) {
+                    findReply.likes.pull(userId)
+                }
+
+                await findReply.dislike.unshift(userId)
+
+                await findReply.save()
+                return res.status(200).json({
+                    status: "success",
+                    message: "success dislike thread"
+                })
+
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Thread not match"
+                })
+            }
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({
+                status: 'failed',
+                message: "Internal Server Error"
+            })
+        }
+    },
+
+    deleteDownVote: async(req, res) => {
+        const id = req.params.id
+        const userId = req.user.id
+        try {
+            if (id.match(/^[0-9a-fA-F]{24}$/)) {
+                const findReply = await reply.findById(id)
+                if (!findReply) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "cannot found thread"
+                    })
+                }
+                if (findReply.dislike.filter((e) => e.toString() == userId).length == 0) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "reply has not been disliked"
+                    })
+                }
+
+                await findReply.dislike.pull(userId)
+
+                await findReply.save()
+                return res.status(200).json({
+                    status: "success",
+                    message: "success delete dislike"
+                })
+
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Thread not match"
+                })
+            }
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({
+                status: 'failed',
+                message: "Internal Server Error"
+            })
+        }
+    }
 };
