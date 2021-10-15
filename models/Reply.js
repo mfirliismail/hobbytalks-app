@@ -14,13 +14,26 @@ const ReplySchema = new Schema({
         type: String
     },
     likes: [{
-        type: Schema.Types.ObjectId,
-        ref: "Users"
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: "Users"
+        },
+        date: {
+            type: Date,
+            default: Date.now,
+        }
     }],
     dislike: [{
-        type: Schema.Types.ObjectId,
-        ref: "Users"
-    }], //=========================
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: "Users"
+        },
+        date: {
+            type: Date,
+            default: Date.now,
+        }
+    }],
+    //=========================
     subReply: [{
         type: Schema.Types.ObjectId,
         ref: "SubReply"
@@ -38,13 +51,13 @@ ReplySchema.virtual('subReplyCount', {
 })
 ReplySchema.virtual('likeCount', {
     ref: "Reply",
-    localField: "likes",
+    localField: "likes.user",
     foreignField: "Users",
     count: true
 })
 ReplySchema.virtual('dislikeCount', {
     ref: "Reply",
-    localField: "dislike",
+    localField: "dislike.user",
     foreignField: "Users",
     count: true
 })

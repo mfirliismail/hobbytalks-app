@@ -167,18 +167,18 @@ module.exports = {
             if (subreplyId.match(/^[0-9a-fA-F]{24}$/)) {
                 const subreply = await subReply.findById(subreplyId);
                 console.log(subreply)
-                if (subreply.likes.filter((like) => like.toString() === userId).length > 0) {
+                if (subreply.likes.filter((like) => like.user.toString() === userId).length > 0) {
                     return res.status(400).json({
                         status: "failed",
                         message: "Already vote"
                     })
                 }
 
-                if (subreply.dislike.filter((dislikes) => dislikes.toString() === userId).length > 0) {
-                    subreply.dislike.pull(userId)
+                if (subreply.dislike.filter((dislikes) => dislikes.user.toString() === userId).length > 0) {
+                    subreply.dislike.pull({ user: userId })
                 }
 
-                await subreply.likes.unshift(userId)
+                await subreply.likes.unshift({ user: userId })
 
                 await subreply.save()
                 res.status(200).json({
@@ -206,14 +206,14 @@ module.exports = {
             if (subreplyId.match(/^[0-9a-fA-F]{24}$/)) {
                 const subreply = await subReply.findById(subreplyId);
 
-                if (subreply.likes.filter((like) => like.toString() === userId).length === 0) {
+                if (subreply.likes.filter((like) => like.user.toString() === userId).length === 0) {
                     return res.status(400).json({
                         status: "failed",
                         message: "There is no vote"
                     })
                 }
 
-                await subreply.likes.pull(userId)
+                await subreply.likes.pull({ user: userId })
                 await subreply.save()
                 res.status(200).json({
                     status: "success",
@@ -240,18 +240,18 @@ module.exports = {
             if (subreplyId.match(/^[0-9a-fA-F]{24}$/)) {
                 const subreply = await subReply.findById(subreplyId);
 
-                if (subreply.likes.filter((like) => like.toString() === userId).length > 0) {
-                    subreply.likes.pull(userId)
+                if (subreply.likes.filter((like) => like.user.toString() === userId).length > 0) {
+                    subreply.likes.pull({ user: userId })
                 }
 
-                if (subreply.dislike.filter((dislikes) => dislikes.toString() === userId).length > 0) {
+                if (subreply.dislike.filter((dislikes) => dislikes.user.toString() === userId).length > 0) {
                     return res.status(400).json({
                         status: "failed",
-                        message: "Already vote"
+                        message: "Already downvote"
                     })
                 }
 
-                await subreply.dislike.unshift(userId)
+                await subreply.dislike.unshift({ user: userId })
 
                 await subreply.save()
                 return res.status(200).json({
@@ -279,14 +279,14 @@ module.exports = {
             if (subreplyId.match(/^[0-9a-fA-F]{24}$/)) {
                 const subreply = await subReply.findById(subreplyId);
 
-                if (subreply.dislike.filter((dislikes) => dislikes.toString() === userId).length === 0) {
+                if (subreply.dislike.filter((dislikes) => dislikes.user.toString() === userId).length === 0) {
                     return res.status(400).json({
                         status: "failed",
                         message: "There is no vote"
                     })
                 }
 
-                await subreply.dislike.pull(userId)
+                await subreply.dislike.pull({ user: userId })
                 await subreply.save()
                 return res.status(200).json({
                     status: "success",
