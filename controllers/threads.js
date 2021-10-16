@@ -619,5 +619,44 @@ module.exports = {
                 message: "Internal Server Error",
             });
         }
+    },
+
+    mightLike: async(req, res) => {
+        const userId = req.user.id
+
+        try {
+            const findUser = await Users.findById(userId)
+            const categoryLikes = findUser.categoryLike
+            const categoryThreads = []
+
+            for(let i = 0; i < categoryLikes.length; i++){
+                const findThreads = await Threads.findOne({category: categoryLikes[i]})
+                .populate([{
+                    path: "userId",
+                    model: "Users",
+                    select: {
+                        "name": 1,
+                        "avatar": 1
+                    }
+                },"dislikeCount", "likeCount", "commentCount"])
+                .select(["title", "dislike", "likes", "comment"])
+                if(findThreads){
+                    categoryThreads.push(findThreads)
+                }
+            }
+
+            return res.status(200).json({
+                status: "Success",
+                message: "Success retrieved data",
+                data: categoryThreads
+            })
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({
+                status: "failed",
+                message: "Internal Server Error"
+            })
+        }
     }
 }

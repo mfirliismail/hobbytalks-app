@@ -155,7 +155,6 @@ module.exports = {
                 if (categoriesId[i].match(/^[0-9a-fA-F]{24}$/)) {
                     const findCategory = await Category.findById(categoriesId[i])
                     if(!findCategory) {
-                        console.log("masuk")
                         return res.status(400).json({
                             status: "Failled",
                             message: "cannot found category id"
@@ -163,7 +162,6 @@ module.exports = {
                     }
     
                     if (findUser.categoryLike.filter((e) => e.toString() == categoriesId[i]).length > 0) {
-                        console.log("masuk 2")
                         return res.status(400).json({
                             status: "failed",
                             message: "like category already"
@@ -174,11 +172,6 @@ module.exports = {
                     findUser.categoryLike.unshift(categoriesId[i].toString())
 
                     await findUser.save()
-                    return res.status(200).json({
-                        status: "Success",
-                        message: "Success add like categories",
-                        data: findUser
-                    })
                 } else {
                     return res.status(400).json({
                         status: "Failled",
@@ -186,6 +179,11 @@ module.exports = {
                     })
                 }
             }
+            return res.status(200).json({
+                status: "Success",
+                message: "Success add like categories",
+                data: findUser
+            })
                 
         } catch (error) {
             return res.status(500).json({
