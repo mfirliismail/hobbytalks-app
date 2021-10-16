@@ -41,6 +41,9 @@ const ThreadsSchema = new Schema({
             default: Date.now,
         }
     }], //=========================
+    total: {
+        type: Number
+    },
     comment: [{
         type: Schema.Types.ObjectId,
         ref: "Comments"
