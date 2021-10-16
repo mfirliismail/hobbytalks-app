@@ -1,7 +1,9 @@
 const Users = require('../models/Users')
+const Category = require('../models/Categories')
 const Joi = require('joi')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const mongoose = require('mongoose')
 require("dotenv").config()
 
 
@@ -135,6 +137,55 @@ module.exports = {
 
         } catch (error) {
             console.log(error)
+            return res.status(500).json({
+                status: "failed",
+                message: "Internal Server Error"
+            })
+        }
+    },
+
+    isLikeCategories: async(req, res) => {
+        const userId = req.user.id
+        const categoriesId = req.body.categoryId
+        
+        try {
+            const findUser = await Users.findById(userId)
+
+            for(let i = 0; i < categoriesId.length; i++){
+                if (categoriesId[i].match(/^[0-9a-fA-F]{24}$/)) {
+                    const findCategory = await Category.findById(categoriesId[i])
+                    if(!findCategory) {
+                        return res.status(400).json({
+                            status: "Failled",
+                            message: "cannot found category id"
+                        })
+                    }
+    
+                    if (findUser.categoryLike.filter((e) => e.toString() == categoriesId[i]).length > 0) {
+                        return res.status(400).json({
+                            status: "failed",
+                            message: "like category already"
+                        })
+                    }
+                    console.log("category", categoriesId[i], findUser.categoryLike)
+                    
+                    findUser.categoryLike.unshift(categoriesId[i].toString())
+
+                    await findUser.save()
+                } else {
+                    return res.status(400).json({
+                        status: "Failled",
+                        message: "cannot found category id"
+                    })
+                }
+            }
+            return res.status(200).json({
+                status: "Success",
+                message: "Success add like categories",
+                data: findUser
+            })
+                
+        } catch (error) {
             return res.status(500).json({
                 status: "failed",
                 message: "Internal Server Error"

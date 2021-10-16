@@ -15,6 +15,7 @@ router.get('/newest', thread.getThreadNewest)
 router.get('/more/:userId/:threadId', thread.moreFromUser)
 router.get('/trending', thread.getThreadTrending)
 router.get('/mostpopular', thread.getThreadMostPopular)
+router.get('/mightlike',authToken, thread.mightLike)
 
 router.put('/upvote/:id', authToken, thread.addLikes)
 router.delete('/upvote/:id', authToken, thread.deleteLikes)
