@@ -67,7 +67,6 @@ module.exports = {
                     "avatar": 1
                 }
             }, "commentCount", "likeCount", "dislikeCount"]).limit(limit).skip(limit * (page - 1))
-            const comments = await Comments.find({ threadId: thread.id })
             const count = await Threads.count()
 
             let next = page + 1
@@ -90,7 +89,6 @@ module.exports = {
                 status: "success",
                 message: "Data retrieved successfully",
                 data: thread,
-                totalComment: comments.length,
                 totalPage: total,
                 nextPage: next,
                 currentPage: page,
@@ -110,7 +108,7 @@ module.exports = {
         const limit = 4
         try {
             const threads = await Threads.find({ "title": { $regex: new RegExp(keyword, "gi") } })
-                .populate({
+                .populate([{
                     path: "userId",
                     models: "Users",
                     select: {
@@ -118,7 +116,7 @@ module.exports = {
                         "email": 1,
                         "avatar": 1
                     }
-                }).limit(limit).skip(limit * (page - 1))
+                }, "commentCount", "likeCount", "dislikeCount"]).limit(limit).skip(limit * (page - 1))
             const comments = await Comments.find({ threadId: threads.id })
             const count = await Threads.count({ "title": { $regex: new RegExp(keyword, "gi") } })
 
@@ -229,17 +227,17 @@ module.exports = {
                         message: "cannot found thread"
                     })
                 }
-                if (findthread.likes.filter((e) => e.toString() == userId).length > 0) {
+                if (findthread.likes.filter((e) => e.user.toString() == userId).length > 0) {
                     return res.status(400).json({
                         status: "failed",
                         message: "threads already liked"
                     })
                 }
-                if (findthread.dislike.filter((e) => e.toString() == userId).length > 0) {
-                    findthread.dislike.pull(userId)
+                if (findthread.dislike.filter((e) => e.user.toString() == userId).length > 0) {
+                    findthread.dislike.pull({ user: userId })
                 }
 
-                await findthread.likes.unshift(userId)
+                await findthread.likes.unshift({ user: userId })
 
                 await findthread.save()
                 return res.status(200).json({
@@ -280,7 +278,7 @@ module.exports = {
                     })
                 }
 
-                await findthread.likes.pull(userId)
+                await findthread.likes.pull({ user: userId })
 
                 await findthread.save()
                 return res.status(200).json({
@@ -315,17 +313,17 @@ module.exports = {
                         message: "cannot found thread"
                     })
                 }
-                if (findthread.dislike.filter((e) => e.toString() == userId).length > 0) {
+                if (findthread.dislike.filter((e) => e.user.toString() == userId).length > 0) {
                     return res.status(400).json({
                         status: "failed",
                         message: "threads already disliked"
                     })
                 }
-                if (findthread.likes.filter((e) => e.toString() == userId).length > 0) {
-                    findthread.likes.pull(userId)
+                if (findthread.likes.filter((e) => e.user.toString() == userId).length > 0) {
+                    findthread.likes.pull({ user: userId })
                 }
 
-                await findthread.dislike.unshift(userId)
+                await findthread.dislike.unshift({ user: userId })
 
                 await findthread.save()
                 return res.status(200).json({
@@ -360,14 +358,14 @@ module.exports = {
                         message: "cannot found thread"
                     })
                 }
-                if (findthread.dislike.filter((e) => e.toString() == userId).length == 0) {
+                if (findthread.dislike.filter((e) => e.user.toString() == userId).length == 0) {
                     return res.status(400).json({
                         status: "failed",
                         message: "threads has not been disliked"
                     })
                 }
 
-                await findthread.dislike.pull(userId)
+                await findthread.dislike.pull({ user: userId })
 
                 await findthread.save()
                 return res.status(200).json({

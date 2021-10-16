@@ -14,12 +14,24 @@ const CommentSchema = new Schema({
         type: String
     },
     likes: [{
-        type: Schema.Types.ObjectId,
-        ref: "Users"
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: "Users"
+        },
+        date: {
+            type: Date,
+            default: Date.now,
+        }
     }],
     dislike: [{
-        type: Schema.Types.ObjectId,
-        ref: "Users"
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: "Users"
+        },
+        date: {
+            type: Date,
+            default: Date.now,
+        }
     }], //=========================
     reply: [{
         type: Schema.Types.ObjectId,
@@ -38,13 +50,13 @@ CommentSchema.virtual('replyCount', {
 })
 CommentSchema.virtual('likeCount', {
     ref: "Comments",
-    localField: "likes",
+    localField: "likes.user",
     foreignField: "Users",
     count: true
 })
 CommentSchema.virtual('dislikeCount', {
     ref: "Comments",
-    localField: "dislike",
+    localField: "dislike.user",
     foreignField: "Users",
     count: true
 })
