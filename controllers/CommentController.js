@@ -56,7 +56,7 @@ module.exports = {
                         path: "subReply",
                         models: "SubReply",
                     })
-                }).populate({
+                }).populate([{
                     path: "userId",
                     models: "Users",
                     select: {
@@ -64,7 +64,7 @@ module.exports = {
                         "email": 1,
                         "avatar": 1
                     }
-                }).limit(limit * page)
+                }, "likeCount", "dislikeCount"]).limit(limit * page)
                 if (comments.length == 0) {
                     return res.status(400).json({
                         status: "failed",

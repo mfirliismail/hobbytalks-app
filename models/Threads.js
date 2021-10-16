@@ -22,12 +22,24 @@ const ThreadsSchema = new Schema({
         ref: "Category"
     },
     likes: [{
-        type: Schema.Types.ObjectId,
-        ref: "Users"
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: "Users"
+        },
+        date: {
+            type: Date,
+            default: Date.now,
+        }
     }],
     dislike: [{
-        type: Schema.Types.ObjectId,
-        ref: "Users"
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: "Users"
+        },
+        date: {
+            type: Date,
+            default: Date.now,
+        }
     }], //=========================
     comment: [{
         type: Schema.Types.ObjectId,
@@ -38,11 +50,22 @@ const ThreadsSchema = new Schema({
         default: Date.now,
     },
 })
-
 ThreadsSchema.virtual('commentCount', {
     ref: "Comments",
     localField: "comment",
     foreignField: "threadId",
+    count: true
+})
+ThreadsSchema.virtual('likeCount', {
+    ref: "Threads",
+    localField: "likes.user",
+    foreignField: "Users",
+    count: true
+})
+ThreadsSchema.virtual('dislikeCount', {
+    ref: "Threads",
+    localField: "dislike.user",
+    foreignField: "Users",
     count: true
 })
 ThreadsSchema.set("toObject", { virtuals: true })

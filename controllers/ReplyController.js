@@ -51,7 +51,7 @@ module.exports = {
                 const findReplies = await reply.find({ commentId: id })
                 const replies = await reply.find({ commentId: id }).populate({
                     path: "subReply"
-                }).populate({
+                }).populate([{
                     path: "userId",
                     models: "Users",
                     select: {
@@ -59,7 +59,7 @@ module.exports = {
                         "email": 1,
                         "avatar": 1
                     }
-                }).limit(limit * page);
+                }, "likeCount", "dislikeCount"]).limit(limit * page);
                 if (replies.length == 0) {
                     return res.status(400).json({
                         status: "failed",
@@ -164,14 +164,12 @@ module.exports = {
             });
         }
     },
-
-    
     addUpVote: async(req, res) => {
         const id = req.params.id
         const userId = req.user.id
-        
+
         try {
-            if(id.match(/^[0-9a-fA-F]{24}$/)) {
+            if (id.match(/^[0-9a-fA-F]{24}$/)) {
                 const findReply = await reply.findById(id)
                 if (!findReply) {
                     return res.status(400).json({
@@ -180,21 +178,21 @@ module.exports = {
                     })
                 }
 
-                if (findReply.likes.filter((e) => e.toString() == userId).length > 0) {
+                if (findReply.likes.filter((e) => e.user.toString() == userId).length > 0) {
                     return res.status(400).json({
                         status: "Failled",
                         message: "Reply already liked"
                     })
                 }
 
-                if (findReply.dislike.filter((e) => e.toString() == userId).length > 0) {
-                    findReply.dislike.pull(userId)
+                if (findReply.dislike.filter((e) => e.user.toString() == userId).length > 0) {
+                    findReply.dislike.pull({ user: userId })
                 }
-                
-                await reply.likes.unshif(userId)
+
+                await reply.likes.unshif({ user: userId })
 
                 await findReply.save()
-                
+
                 return res.status(200).json({
                     status: "success",
                     message: "success like Reply"
@@ -204,7 +202,7 @@ module.exports = {
                 return res.status(400).json({
                     status: "failed",
                     message: "Reply not match"
-                }) 
+                })
             }
         } catch (error) {
             console.log(error)
@@ -214,7 +212,6 @@ module.exports = {
             })
         }
     },
-
     deleteUpVote: async(req, res) => {
         const id = req.params.id
         const userId = req.user.id
@@ -227,14 +224,14 @@ module.exports = {
                         message: "cannot found thread"
                     })
                 }
-                if (findReply.likes.filter((e) => e.toString() == userId).length === 0) {
+                if (findReply.likes.filter((e) => e.user.toString() == userId).length === 0) {
                     return res.status(400).json({
                         status: "failed",
                         message: "reply has not been liked"
                     })
                 }
 
-                await findReply.likes.pull(userId)
+                await findReply.likes.pull({ user: userId })
 
                 await findReply.save()
                 return res.status(200).json({
@@ -257,7 +254,6 @@ module.exports = {
             })
         }
     },
-
     addDownVote: async(req, res) => {
         const id = req.params.id
         const userId = req.user.id
@@ -270,17 +266,17 @@ module.exports = {
                         message: "cannot found thread"
                     })
                 }
-                if (findReply.dislike.filter((e) => e.toString() == userId).length > 0) {
+                if (findReply.dislike.filter((e) => e.user.toString() == userId).length > 0) {
                     return res.status(400).json({
                         status: "failed",
                         message: "reply already disliked"
                     })
                 }
-                if (findReply.likes.filter((e) => e.toString() == userId).length > 0) {
-                    findReply.likes.pull(userId)
+                if (findReply.likes.filter((e) => e.user.toString() == userId).length > 0) {
+                    findReply.likes.pull({ user: userId })
                 }
 
-                await findReply.dislike.unshift(userId)
+                await findReply.dislike.unshift({ user: userId })
 
                 await findReply.save()
                 return res.status(200).json({
@@ -303,7 +299,6 @@ module.exports = {
             })
         }
     },
-
     deleteDownVote: async(req, res) => {
         const id = req.params.id
         const userId = req.user.id
@@ -316,14 +311,14 @@ module.exports = {
                         message: "cannot found thread"
                     })
                 }
-                if (findReply.dislike.filter((e) => e.toString() == userId).length == 0) {
+                if (findReply.dislike.filter((e) => e.user.toString() == userId).length == 0) {
                     return res.status(400).json({
                         status: "failed",
                         message: "reply has not been disliked"
                     })
                 }
 
-                await findReply.dislike.pull(userId)
+                await findReply.dislike.pull({ user: userId })
 
                 await findReply.save()
                 return res.status(200).json({
