@@ -4,6 +4,7 @@ const Reply = require('../models/Reply')
 const SubReply = require('../models/SubReply')
 const Users = require('../models/Users')
 const joi = require('joi')
+const { find } = require('../models/Threads')
 
 module.exports = {
     createThreads: async(req, res) => {
@@ -13,7 +14,8 @@ module.exports = {
         try {
             const schema = joi.object({
                 title: joi.string(),
-                content: joi.string()
+                content: joi.string(),
+                category: joi.string()
             })
             const { error } = schema.validate({...req.body }, { aboutEarly: false })
             if (error) {
@@ -234,7 +236,8 @@ module.exports = {
                     })
                 }
                 if (findthread.dislike.filter((e) => e.user.toString() == userId).length > 0) {
-                    findthread.dislike.pull({ user: userId })
+                    const removeIndex = findthread.dislike.map((d) => d.user.toString()).indexOf(userId);
+                    findthread.dislike.splice(removeIndex, 1);
                 }
 
                 await findthread.likes.unshift({ user: userId })
@@ -271,15 +274,14 @@ module.exports = {
                         message: "cannot found thread"
                     })
                 }
-                if (findthread.likes.filter((e) => e.toString() == userId).length === 0) {
+                if (findthread.likes.filter((e) => e.user.toString() == userId).length === 0) {
                     return res.status(400).json({
                         status: "failed",
                         message: "threads has not been liked"
                     })
                 }
-
-                await findthread.likes.pull({ user: userId })
-
+                const removeIndex = findthread.likes.map((like) => like.user.toString()).indexOf(userId);
+                findthread.likes.splice(removeIndex, 1);
                 await findthread.save()
                 return res.status(200).json({
                     status: "success",
@@ -320,7 +322,8 @@ module.exports = {
                     })
                 }
                 if (findthread.likes.filter((e) => e.user.toString() == userId).length > 0) {
-                    findthread.likes.pull({ user: userId })
+                    const removeIndex = findthread.likes.map((l) => l.user.toString()).indexOf(userId);
+                    findthread.likes.splice(removeIndex, 1);
                 }
 
                 await findthread.dislike.unshift({ user: userId })
@@ -364,9 +367,8 @@ module.exports = {
                         message: "threads has not been disliked"
                     })
                 }
-
-                await findthread.dislike.pull({ user: userId })
-
+                const removeIndex = findthread.dislike.map((d) => d.user.toString()).indexOf(userId);
+                findthread.dislike.splice(removeIndex, 1);
                 await findthread.save()
                 return res.status(200).json({
                     status: "success",
