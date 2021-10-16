@@ -35,7 +35,10 @@ module.exports = {
             to: `${email}`,
             subject: "verified account Hobby Talks",
             template: `email`,
-            context: {link}
+            context: {
+                email,
+                link
+            }
         }
 
         transporter.sendMail(mailOptions, (error, info) => {
