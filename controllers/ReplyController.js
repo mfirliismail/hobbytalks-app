@@ -186,10 +186,11 @@ module.exports = {
                 }
 
                 if (findReply.dislike.filter((e) => e.user.toString() == userId).length > 0) {
-                    findReply.dislike.pull({ user: userId })
+                    const removeIndex = findReply.dislike.map((d) => d.user.toString()).indexOf(userId);
+                    findReply.dislike.splice(removeIndex, 1);
                 }
 
-                await reply.likes.unshif({ user: userId })
+                await findReply.likes.unshift({ user: userId })
 
                 await findReply.save()
 
@@ -231,7 +232,8 @@ module.exports = {
                     })
                 }
 
-                await findReply.likes.pull({ user: userId })
+                const removeIndex = findReply.likes.map((l) => l.user.toString()).indexOf(userId);
+                findReply.likes.splice(removeIndex, 1);
 
                 await findReply.save()
                 return res.status(200).json({
@@ -273,7 +275,8 @@ module.exports = {
                     })
                 }
                 if (findReply.likes.filter((e) => e.user.toString() == userId).length > 0) {
-                    findReply.likes.pull({ user: userId })
+                    const removeIndex = findReply.likes.map((l) => l.user.toString()).indexOf(userId);
+                    findReply.likes.splice(removeIndex, 1);
                 }
 
                 await findReply.dislike.unshift({ user: userId })
@@ -318,7 +321,8 @@ module.exports = {
                     })
                 }
 
-                await findReply.dislike.pull({ user: userId })
+                const removeIndex = findReply.dislike.map((d) => d.user.toString()).indexOf(userId);
+                findReply.dislike.splice(removeIndex, 1);
 
                 await findReply.save()
                 return res.status(200).json({

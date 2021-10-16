@@ -175,7 +175,8 @@ module.exports = {
                 }
 
                 if (subreply.dislike.filter((dislikes) => dislikes.user.toString() === userId).length > 0) {
-                    subreply.dislike.pull({ user: userId })
+                    const removeIndex = subreply.dislike.map((d) => d.user.toString()).indexOf(userId);
+                    subreply.dislike.splice(removeIndex, 1);
                 }
 
                 await subreply.likes.unshift({ user: userId })
@@ -213,7 +214,8 @@ module.exports = {
                     })
                 }
 
-                await subreply.likes.pull({ user: userId })
+                const removeIndex = subreply.likes.map((l) => l.user.toString()).indexOf(userId);
+                subreply.likes.splice(removeIndex, 1);
                 await subreply.save()
                 res.status(200).json({
                     status: "success",
@@ -241,7 +243,8 @@ module.exports = {
                 const subreply = await subReply.findById(subreplyId);
 
                 if (subreply.likes.filter((like) => like.user.toString() === userId).length > 0) {
-                    subreply.likes.pull({ user: userId })
+                    const removeIndex = subreply.likes.map((l) => l.user.toString()).indexOf(userId);
+                    subreply.likes.splice(removeIndex, 1);
                 }
 
                 if (subreply.dislike.filter((dislikes) => dislikes.user.toString() === userId).length > 0) {
@@ -286,7 +289,8 @@ module.exports = {
                     })
                 }
 
-                await subreply.dislike.pull({ user: userId })
+                const removeIndex = subreply.dislike.map((d) => d.user.toString()).indexOf(userId);
+                subreply.dislike.splice(removeIndex, 1);
                 await subreply.save()
                 return res.status(200).json({
                     status: "success",
