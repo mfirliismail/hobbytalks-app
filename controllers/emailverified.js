@@ -4,7 +4,7 @@ const hbs = require('nodemailer-express-handlebars')
 const Jwt = require('jsonwebtoken')
 
 module.exports = {
-    sendEmail: async (email, verifCode) => {
+    sendEmail: async(email, verifCode) => {
         let link
 
         const transporter = nodeMailer.createTransport({
@@ -29,27 +29,27 @@ module.exports = {
             })
         )
 
-        link = `http://localhost:5000/api/v1/users/verif?email=${email}&verifCode=${verifCode}`
+        link = `https://hobbytalk-be-glints.herokuapp.com/api/v1/users/verif?email=${email}&verifCode=${verifCode}`
         let mailOptions = {
             from: process.env.EMAIL,
             to: `${email}`,
             subject: "verified account Hobby Talks",
             template: `email`,
-            context: {link}
+            context: { link }
         }
 
         transporter.sendMail(mailOptions, (error, info) => {
-            if(error){
+            if (error) {
                 console.log(error)
-            }else{
+            } else {
                 console.log("Message sent: " + info.response)
             }
         })
     },
 
-    verifAcc: async (req, res) => {
+    verifAcc: async(req, res) => {
         try {
-            const {email, verifCode} = req.query
+            const { email, verifCode } = req.query
 
             const user = await User.findOne({
                 email: email,
@@ -71,7 +71,7 @@ module.exports = {
 
             user.isVerified = true
             await user.save()
-            
+
             //mengubah jadi token
             const payload = {
                 id: user._id,
@@ -79,7 +79,7 @@ module.exports = {
             }
 
             //method sign dari jwt
-            Jwt.sign(payload, process.env.PWD_TOKEN, {expiresIn: 3600 * 24}, (error, token) => {
+            Jwt.sign(payload, process.env.PWD_TOKEN, { expiresIn: 3600 * 24 }, (error, token) => {
                 res.status(200).json({
                     status: "success",
                     message: "Account verification success",
