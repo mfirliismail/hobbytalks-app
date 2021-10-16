@@ -14,17 +14,42 @@ const SubReplySchema = new Schema({
         type: String
     },
     likes: [{
-        type: Schema.Types.ObjectId,
-        ref: "Users"
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: "Users"
+        },
+        date: {
+            type: Date,
+            default: Date.now,
+        }
     }],
     dislike: [{
-        type: Schema.Types.ObjectId,
-        ref: "Users"
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: "Users"
+        },
+        date: {
+            type: Date,
+            default: Date.now,
+        }
     }],
     date: {
         type: Date,
         default: Date.now,
     }
 })
-
+SubReplySchema.virtual('likeCount', {
+    ref: "SubReply",
+    localField: "likes.user",
+    foreignField: "Users",
+    count: true
+})
+SubReplySchema.virtual('dislikeCount', {
+    ref: "SubReply",
+    localField: "dislike.user",
+    foreignField: "Users",
+    count: true
+})
+SubReplySchema.set("toObject", { virtuals: true })
+SubReplySchema.set("toJSON", { virtuals: true })
 module.exports = SubReply = mongoose.model('SubReply', SubReplySchema)

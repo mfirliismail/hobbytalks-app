@@ -43,12 +43,15 @@ module.exports = {
         }
     },
     readAllReply: async(req, res) => {
+        const page = parseInt(req.query.page) || 1
+        const limit = parseInt(req.query.limit) || 10
         const id = req.params.id
         try {
             if (id.match(/^[0-9a-fA-F]{24}$/)) {
+                const findReplies = await reply.find({ commentId: id })
                 const replies = await reply.find({ commentId: id }).populate({
                     path: "subReply"
-                }).populate({
+                }).populate([{
                     path: "userId",
                     models: "Users",
                     select: {
@@ -56,7 +59,7 @@ module.exports = {
                         "email": 1,
                         "avatar": 1
                     }
-                });
+                }, "likeCount", "dislikeCount"]).limit(limit * page);
                 if (replies.length == 0) {
                     return res.status(400).json({
                         status: "failed",
@@ -68,7 +71,8 @@ module.exports = {
                     status: "success",
                     message: "Replies retrieved successfully",
                     data: replies,
-                    totalsubReply: findsubReply.length
+                    totalsubReply: findsubReply.length,
+                    totalPage: Math.ceil(findReplies.length / limit)
                 });
             } else {
                 return res.status(400).json({
@@ -160,4 +164,185 @@ module.exports = {
             });
         }
     },
+    addUpVote: async(req, res) => {
+        const id = req.params.id
+        const userId = req.user.id
+
+        try {
+            if (id.match(/^[0-9a-fA-F]{24}$/)) {
+                const findReply = await reply.findById(id)
+                if (!findReply) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "Cannot find reply"
+                    })
+                }
+
+                if (findReply.likes.filter((e) => e.user.toString() == userId).length > 0) {
+                    return res.status(400).json({
+                        status: "Failled",
+                        message: "Reply already liked"
+                    })
+                }
+
+                if (findReply.dislike.filter((e) => e.user.toString() == userId).length > 0) {
+                    const removeIndex = findReply.dislike.map((d) => d.user.toString()).indexOf(userId);
+                    findReply.dislike.splice(removeIndex, 1);
+                }
+
+                await findReply.likes.unshift({ user: userId })
+
+                await findReply.save()
+
+                return res.status(200).json({
+                    status: "success",
+                    message: "success like Reply"
+                })
+
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Reply not match"
+                })
+            }
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({
+                status: 'failed',
+                message: "Internal Server Error"
+            })
+        }
+    },
+    deleteUpVote: async(req, res) => {
+        const id = req.params.id
+        const userId = req.user.id
+        try {
+            if (id.match(/^[0-9a-fA-F]{24}$/)) {
+                const findReply = await reply.findById(id)
+                if (!findReply) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "cannot found thread"
+                    })
+                }
+                if (findReply.likes.filter((e) => e.user.toString() == userId).length === 0) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "reply has not been liked"
+                    })
+                }
+
+                const removeIndex = findReply.likes.map((l) => l.user.toString()).indexOf(userId);
+                findReply.likes.splice(removeIndex, 1);
+
+                await findReply.save()
+                return res.status(200).json({
+                    status: "success",
+                    message: "success delete like"
+                })
+
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Thread not match"
+                })
+            }
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({
+                status: 'failed',
+                message: "Internal Server Error"
+            })
+        }
+    },
+    addDownVote: async(req, res) => {
+        const id = req.params.id
+        const userId = req.user.id
+        try {
+            if (id.match(/^[0-9a-fA-F]{24}$/)) {
+                const findReply = await reply.findById(id)
+                if (!findReply) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "cannot found thread"
+                    })
+                }
+                if (findReply.dislike.filter((e) => e.user.toString() == userId).length > 0) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "reply already disliked"
+                    })
+                }
+                if (findReply.likes.filter((e) => e.user.toString() == userId).length > 0) {
+                    const removeIndex = findReply.likes.map((l) => l.user.toString()).indexOf(userId);
+                    findReply.likes.splice(removeIndex, 1);
+                }
+
+                await findReply.dislike.unshift({ user: userId })
+
+                await findReply.save()
+                return res.status(200).json({
+                    status: "success",
+                    message: "success dislike thread"
+                })
+
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Thread not match"
+                })
+            }
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({
+                status: 'failed',
+                message: "Internal Server Error"
+            })
+        }
+    },
+    deleteDownVote: async(req, res) => {
+        const id = req.params.id
+        const userId = req.user.id
+        try {
+            if (id.match(/^[0-9a-fA-F]{24}$/)) {
+                const findReply = await reply.findById(id)
+                if (!findReply) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "cannot found thread"
+                    })
+                }
+                if (findReply.dislike.filter((e) => e.user.toString() == userId).length == 0) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "reply has not been disliked"
+                    })
+                }
+
+                const removeIndex = findReply.dislike.map((d) => d.user.toString()).indexOf(userId);
+                findReply.dislike.splice(removeIndex, 1);
+
+                await findReply.save()
+                return res.status(200).json({
+                    status: "success",
+                    message: "success delete dislike"
+                })
+
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "Thread not match"
+                })
+            }
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({
+                status: 'failed',
+                message: "Internal Server Error"
+            })
+        }
+    }
 };

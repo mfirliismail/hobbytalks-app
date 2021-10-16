@@ -14,13 +14,26 @@ const ReplySchema = new Schema({
         type: String
     },
     likes: [{
-        type: Schema.Types.ObjectId,
-        ref: "Users"
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: "Users"
+        },
+        date: {
+            type: Date,
+            default: Date.now,
+        }
     }],
     dislike: [{
-        type: Schema.Types.ObjectId,
-        ref: "Users"
-    }], //=========================
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: "Users"
+        },
+        date: {
+            type: Date,
+            default: Date.now,
+        }
+    }],
+    //=========================
     subReply: [{
         type: Schema.Types.ObjectId,
         ref: "SubReply"
@@ -30,5 +43,24 @@ const ReplySchema = new Schema({
         default: Date.now,
     }
 })
-
+ReplySchema.virtual('subReplyCount', {
+    ref: "SubReply",
+    localField: "subReply",
+    foreignField: "replyId",
+    count: true
+})
+ReplySchema.virtual('likeCount', {
+    ref: "Reply",
+    localField: "likes.user",
+    foreignField: "Users",
+    count: true
+})
+ReplySchema.virtual('dislikeCount', {
+    ref: "Reply",
+    localField: "dislike.user",
+    foreignField: "Users",
+    count: true
+})
+ReplySchema.set("toObject", { virtuals: true })
+ReplySchema.set("toJSON", { virtuals: true })
 module.exports = Reply = mongoose.model('Reply', ReplySchema)

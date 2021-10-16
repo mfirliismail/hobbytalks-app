@@ -24,6 +24,13 @@ const UsersSchema = new Schema({
     bio: {
         type: String
     },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    verifCode: {
+        type: String
+    },
     categoryLike: [{
         type: Schema.Types.ObjectId,
         ref: "Category"
@@ -37,7 +44,5 @@ const UsersSchema = new Schema({
         ref: "Threads"
     }]
 })
-
-
 
 module.exports = Users = mongoose.model('Users', UsersSchema);

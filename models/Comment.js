@@ -14,12 +14,24 @@ const CommentSchema = new Schema({
         type: String
     },
     likes: [{
-        type: Schema.Types.ObjectId,
-        ref: "Users"
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: "Users"
+        },
+        date: {
+            type: Date,
+            default: Date.now,
+        }
     }],
     dislike: [{
-        type: Schema.Types.ObjectId,
-        ref: "Users"
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: "Users"
+        },
+        date: {
+            type: Date,
+            default: Date.now,
+        }
     }], //=========================
     reply: [{
         type: Schema.Types.ObjectId,
@@ -30,5 +42,24 @@ const CommentSchema = new Schema({
         default: Date.now,
     }
 })
-
+CommentSchema.virtual('replyCount', {
+    ref: "Reply",
+    localField: "reply",
+    foreignField: "commentId",
+    count: true
+})
+CommentSchema.virtual('likeCount', {
+    ref: "Comments",
+    localField: "likes.user",
+    foreignField: "Users",
+    count: true
+})
+CommentSchema.virtual('dislikeCount', {
+    ref: "Comments",
+    localField: "dislike.user",
+    foreignField: "Users",
+    count: true
+})
+CommentSchema.set("toObject", { virtuals: true })
+CommentSchema.set("toJSON", { virtuals: true })
 module.exports = Comments = mongoose.model('Comments', CommentSchema)
