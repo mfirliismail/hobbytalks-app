@@ -1,6 +1,11 @@
+const express = require('express')
 const passport = require("passport");
+const cors = require('cors')
+const app = express()
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 require("dotenv").config();
+
+app.use(cors())
 
 passport.serializeUser(function(user, done) {
     done(null, user);

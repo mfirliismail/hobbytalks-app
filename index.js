@@ -7,8 +7,13 @@ const db = require('./db/database')
 const passport = require('./middlewares/passport')
 const session = require('cookie-session')
 const cors = require('cors')
-app.use(express.json())
-app.use(cors())
+app.use(
+    cors({
+        origin: "http://localhost:3000", // <-- location of the react app were connecting to
+        credentials: true,
+    })
+    )
+    app.use(express.json())
 db()
 app.use(session({
     name: "userlogin-cookie",
