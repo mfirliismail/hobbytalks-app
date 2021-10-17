@@ -622,7 +622,6 @@ module.exports = {
             });
         }
     },
-
     mightLike: async(req, res) => {
         const userId = req.user.id
 
@@ -674,12 +673,22 @@ module.exports = {
                     "email": 1,
                     "avatar": 1
                 }
-            }, "commentCount", "likeCount", "dislikeCount"])
-
-
+            }, "comment", "commentCount", "likeCount", "dislikeCount"])
+            let sekarang = date.getTime()
+            let setelah = date.setTime(date.getTime() - (24 * 60 * 60 * 1000))
+            let skrng = new Date(sekarang)
+            let stlh = new Date(setelah)
+            console.log(sekarang)
+            console.log(setelah)
+            console.log(skrng)
+            console.log(stlh)
             for (let i = 0; i < thread.length; i++) {
                 // let hasil = thread[i].likes.length + thread[i].dislike.length + thread[i].comment.length
-                thread[i].likes.filter(e => e.date > new Date().getTime())
+                let hasil
+                let upvoteJumlah = thread[i].likes.filter(e => e['date'] > stlh)
+                let downvoteJumlah = thread[i].dislike.filter(e => e['date'] > stlh)
+                let commentJumlah = thread[i].comment.filter(e => e['date'] > stlh)
+                hasil = upvoteJumlah.length + downvoteJumlah.length + commentJumlah.length
                 thread[i].total = hasil
                 await thread[i].save()
             }
