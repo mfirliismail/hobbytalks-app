@@ -762,4 +762,40 @@ module.exports = {
             })
         }
     },
+    relatedTopic: async(req, res) => {
+        const limit = 4
+        const id = req.params.id
+        try {
+            const findThread = await Threads.findById(id)
+            if (!findThread) {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "cannot found thread"
+                })
+            }
+
+            const related = await Threads.find({ category: findThread.category, _id: { $ne: id } }).populate([{
+                    path: "userId",
+                    models: "Users",
+                    select: {
+                        "name": 1,
+                        "email": 1,
+                        "avatar": 1
+                    }
+                }, "commentCount", "likeCount", "dislikeCount"]).limit(limit)
+                // const threads = await ThreadsCategory.find({ threadsId: threads.id })
+
+            return res.status(200).json({
+                status: "success",
+                message: "Data retrieved successfully",
+                data: related,
+            });
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                status: "error",
+                message: "Internal Server Error",
+            });
+        }
+    },
 }
