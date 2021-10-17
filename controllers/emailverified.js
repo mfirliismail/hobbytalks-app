@@ -20,11 +20,11 @@ module.exports = {
             hbs({
                 viewEngine: {
                     extname: ".hbs",
-                    partialsDir: '../backendhobbytalk/templates/',
-                    layoutsDir: '../backendhobbytalk/templates/',
+                    partialsDir: '../templates/',
+                    layoutsDir: '../templates/',
                     defaultLayout: 'email'
                 },
-                viewPath: '../backendhobbytalk/templates/',
+                viewPath: '../templates/',
                 extName: '.hbs'
             })
         )
