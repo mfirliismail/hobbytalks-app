@@ -675,7 +675,7 @@ module.exports = {
                 }
             }, "comment", "commentCount", "likeCount", "dislikeCount"])
             let sekarang = date.getTime()
-            let setelah = date.setTime(date.getTime() - (24 * 60 * 60 * 1000))
+            let setelah = date.setTime(date.getTime() - (12 * 60 * 60 * 1000))
             let skrng = new Date(sekarang)
             let stlh = new Date(setelah)
             console.log(sekarang)
@@ -690,6 +690,7 @@ module.exports = {
                 let commentJumlah = thread[i].comment.filter(e => e['date'] > stlh)
                 hasil = upvoteJumlah.length + downvoteJumlah.length + commentJumlah.length
                 thread[i].total = hasil
+
                 await thread[i].save()
             }
 
@@ -703,6 +704,17 @@ module.exports = {
                     "avatar": 1
                 }
             }, "commentCount", "likeCount", "dislikeCount"]).limit(limit).skip(limit * (page - 1))
+            for (let i = 0; i < threads.length; i++) {
+                if (page > 1) {
+                    threads[i].status = "none"
+                    await threads[i].save()
+                } else {
+                    threads[i].status = "none"
+                    threads[0].status = "Hot"
+                    await threads[i].save()
+                }
+
+            }
             const count = await Threads.count()
             let next = page + 1
             if (page * limit >= count) {
