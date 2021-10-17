@@ -678,7 +678,8 @@ module.exports = {
 
 
             for (let i = 0; i < thread.length; i++) {
-                let hasil = thread[i].likes.length + thread[i].dislike.length + thread[i].comment.length
+                // let hasil = thread[i].likes.length + thread[i].dislike.length + thread[i].comment.length
+                thread[i].likes.filter(e => e.date > new Date().getTime())
                 thread[i].total = hasil
                 await thread[i].save()
             }
