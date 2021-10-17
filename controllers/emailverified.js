@@ -34,9 +34,7 @@ module.exports = {
             from: process.env.EMAIL,
             to: `${email}`,
             subject: "verified account Hobby Talks",
-            template: `<body>
-
-            <div class="card mb-3" style="max-width: 540px; margin-left: auto; margin-right: auto; border: 5px solid #58595B; border-radius:5%;">
+            html: `<div class="card mb-3" style="max-width: 540px; margin-left: auto; margin-right: auto; border: 5px solid #58595B; border-radius:5%;">
                 <div class="row no-gutters" style="text-align: center;">
                     <div class="col-md-4" style="text-align: center;">
                         <h1 style="text-align: center;">Hobby Talk</h1>
@@ -46,18 +44,16 @@ module.exports = {
                         <div class="card-body" style="text-align: center;">
                             <hr>
                             <h2 class="card-title">Account Info:</h2>
-                            <p class="card-text">Email: {{email}}</p>
+                            <p class="card-text">Email: ${email}</p>
                         </div>
                         <div class="card-body" style="text-align: center;">
                             <p class="card-text">Please click button for verification</p>
-                            <a class="button" style="background: cornflowerblue;" href="{{link}}"></a>
+                            <a href="${link}">Click here</a>
                         </div>
                     <h6 style="color: grey; text-align: center;">© Hobby Talk 2021. All rights reserved</h6>
                     </div>
                 </div>
-            </div>
-            
-            </body>`,
+            </div>`,
             // context: {
             //     email,
             //     link
