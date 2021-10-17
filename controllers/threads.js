@@ -589,14 +589,14 @@ module.exports = {
             }, "commentCount", "likeCount", "dislikeCount"]).limit(limit).skip(limit * (page - 1))
             const comments = await Comments.find({ threadId: thread.id })
             const count = await Threads.count()
-            for (let i = 0; i < threads.length; i++) {
+            for (let i = 0; i < thread.length; i++) {
                 if (page > 1) {
-                    threads[i].status = "none"
-                    await threads[i].save()
+                    thread[i].status = "none"
+                    await thread[i].save()
                 } else {
-                    threads[i].status = "none"
-                    threads[0].status = "Popular"
-                    await threads[i].save()
+                    thread[i].status = "none"
+                    thread[0].status = "Popular"
+                    await thread[i].save()
                 }
 
             }
