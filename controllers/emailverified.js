@@ -101,13 +101,7 @@ module.exports = {
             }
 
             //method sign dari jwt
-            Jwt.sign(payload, process.env.PWD_TOKEN, { expiresIn: 3600 * 24 }, (error, token) => {
-                res.status(200).json({
-                    status: "success",
-                    message: "Account verification success",
-                    data: token
-                })
-            })
+            res.redirect('http://localhost:3000/login')
 
         } catch (error) {
             console.log(error)
