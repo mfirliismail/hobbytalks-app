@@ -15,7 +15,7 @@ module.exports = {
             const findUser = await Users.findById(id).select('name email avatar banner bio following categoryLike')
                 .populate({
                     path: "threads",
-                    populate: ({
+                    populate: ([{
                         path: "comment",
                         model: "Comments",
                         populate: ({
@@ -26,7 +26,10 @@ module.exports = {
                                 model: "SubReply"
                             })
                         })
-                    })
+                    }, {
+                        path: "category",
+                        models: "Category"
+                    }, "commentCount", "likeCount", "dislikeCount"])
                 })
             if (!findUser) {
                 return res.status(400).json({
@@ -147,20 +150,20 @@ module.exports = {
     isLikeCategories: async(req, res) => {
         const userId = req.user.id
         const categoriesId = req.body.categoryId
-        
+
         try {
             const findUser = await Users.findById(userId)
 
-            for(let i = 0; i < categoriesId.length; i++){
+            for (let i = 0; i < categoriesId.length; i++) {
                 if (categoriesId[i].match(/^[0-9a-fA-F]{24}$/)) {
                     const findCategory = await Category.findById(categoriesId[i])
-                    if(!findCategory) {
+                    if (!findCategory) {
                         return res.status(400).json({
                             status: "Failled",
                             message: "cannot found category id"
                         })
                     }
-    
+
                     if (findUser.categoryLike.filter((e) => e.toString() == categoriesId[i]).length > 0) {
                         return res.status(400).json({
                             status: "failed",
@@ -168,7 +171,7 @@ module.exports = {
                         })
                     }
                     console.log("category", categoriesId[i], findUser.categoryLike)
-                    
+
                     findUser.categoryLike.unshift(categoriesId[i].toString())
 
                     await findUser.save()
@@ -184,7 +187,7 @@ module.exports = {
                 message: "Success add like categories",
                 data: findUser
             })
-                
+
         } catch (error) {
             return res.status(500).json({
                 status: "failed",
