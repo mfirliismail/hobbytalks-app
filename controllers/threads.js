@@ -191,6 +191,7 @@ module.exports = {
         const id = req.params.id
         const body = req.body
         const user = req.user
+        let file
         try {
             const thread = await Threads.findById(id);
             if (!thread) {
@@ -200,6 +201,16 @@ module.exports = {
                 return res.status(401).json({ msg: "You Don't Owe This threads" });
             }
             const threads = await Threads.findById(id);
+            if (req.file) {
+                file = req.file
+            } else {
+                file = threads.image
+            }
+            if (!file.path) {
+                threads.image = threads.image
+            } else {
+                threads.image = file.path
+            }
             threads.title = body.title ? body.title : threads.title
             threads.content = body.content ? body.content : threads.content
             threads.category = body.category ? body.category : threads.category
