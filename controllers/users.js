@@ -125,7 +125,25 @@ module.exports = {
     getOneUser: async(req, res) => {
         const id = req.params.id
         try {
-            const getOne = await Users.findById(id).populate('threads')
+            const getOne = await Users.findById(id).select('name email avatar banner bio following categoryLike')
+                .populate({
+                    path: "threads",
+                    populate: ([{
+                        path: "comment",
+                        model: "Comments",
+                        populate: ({
+                            path: "reply",
+                            model: "Reply",
+                            populate: ({
+                                path: "subReply",
+                                model: "SubReply"
+                            })
+                        })
+                    }, {
+                        path: "category",
+                        models: "Category"
+                    }, "commentCount", "likeCount", "dislikeCount"])
+                })
             if (!getOne) {
                 return res.status(400).json({
                     status: "failed",
