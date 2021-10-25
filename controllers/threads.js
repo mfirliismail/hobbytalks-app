@@ -562,16 +562,21 @@ module.exports = {
     getThreadTrending: async(req, res) => {
         const limit = 7
         try {
-            const thread = await Threads.find().sort({ likes: -1 }).populate([{
+            const thread = await Threads.find().populate([{
                     path: "userId",
                     models: "Users",
                     select: {
                         "name": 1,
                         "email": 1,
                         "avatar": 1
-                    }
+                    },
+                    // options: {
+                    //     sort: { likes: 1 }
+                    // }
                 }, "commentCount", "likeCount", "dislikeCount"]).limit(limit)
                 .select(["title", "likes", "likeCount"])
+
+            thread.sort((a, b) => b.likeCount - a.likeCount)
             return res.status(200).json({
                 status: "success",
                 message: "Data retrieved successfully",
@@ -589,7 +594,7 @@ module.exports = {
         const page = parseInt(req.query.page) || 1
         const limit = 4
         try {
-            const thread = await Threads.find().sort({ likes: -1 }).populate([{
+            const thread = await Threads.find().populate([{
                 path: "userId",
                 models: "Users",
                 select: {
@@ -599,6 +604,7 @@ module.exports = {
                 }
             }, "commentCount", "likeCount", "dislikeCount"]).limit(limit).skip(limit * (page - 1))
             const comments = await Comments.find({ threadId: thread.id })
+            thread.sort((a, b) => b.likeCount - a.likeCount)
             const count = await Threads.count()
             for (let i = 0; i < thread.length; i++) {
                 if (page > 1) {
