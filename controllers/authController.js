@@ -52,6 +52,8 @@ module.exports = {
             const signUp = await Users.create({
                 name,
                 email,
+                avatar: "",
+                bio: "",
                 password: hashPassword,
                 verifCode
             })

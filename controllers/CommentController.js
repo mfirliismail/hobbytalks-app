@@ -50,7 +50,7 @@ module.exports = {
         try {
             if (id.match(/^[0-9a-fA-F]{24}$/)) {
                 const findComments = await comment.find({ threadId: id })
-                const comments = await comment.find({ threadId: id }).populate({
+                const comments = await comment.find({ threadId: id }).sort({ date: -1 }).populate({
                     path: "reply",
                     populate: ([{
                         path: "subReply",
