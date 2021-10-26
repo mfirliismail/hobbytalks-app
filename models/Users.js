@@ -33,7 +33,7 @@ const UsersSchema = new Schema({
     },
     categoryLike: [{
         type: Schema.Types.ObjectId,
-        ref: "Categories"
+        ref: "Category"
     }],
     threads: [{
         type: Schema.Types.ObjectId,

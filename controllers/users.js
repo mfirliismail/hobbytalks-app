@@ -13,7 +13,7 @@ module.exports = {
         try {
             console.log(req.user)
             const findUser = await Users.findById(id).select('name email avatar banner bio following categoryLike')
-                .populate({
+                .populate([{
                     path: "threads",
                     populate: ([{
                         path: "comment",
@@ -30,7 +30,10 @@ module.exports = {
                         path: "category",
                         models: "Category"
                     }, "commentCount", "likeCount", "dislikeCount"])
-                })
+                }, {
+                    path: "categoryLike",
+                    models: "Category"
+                }])
             if (!findUser) {
                 return res.status(400).json({
                     status: "failed",
@@ -126,7 +129,7 @@ module.exports = {
         const id = req.params.id
         try {
             const getOne = await Users.findById(id).select('name email avatar banner bio following categoryLike')
-                .populate({
+                .populate([{
                     path: "threads",
                     populate: ([{
                         path: "comment",
@@ -143,7 +146,10 @@ module.exports = {
                         path: "category",
                         models: "Category"
                     }, "commentCount", "likeCount", "dislikeCount"])
-                })
+                }, {
+                    path: "categoryLike",
+                    models: "Category"
+                }])
             if (!getOne) {
                 return res.status(400).json({
                     status: "failed",
