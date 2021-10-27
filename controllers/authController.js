@@ -181,4 +181,37 @@ module.exports = {
                 res.sendStatus(500)
         }
     },
+
+    facebookLogin: async(req, res) => {
+        let payload;
+        try {
+            const checkEmail = await Users.findOne({
+                email: req.user._json.email
+            });
+            if (checkEmail) {
+                payload = {
+                    email: checkEmail.email,
+                    id: checkEmail.id,
+                };
+            } else {
+                const user = await Users.create({
+                    name: req.user._json.name,
+                    email: req.user._json.email,
+                    avatar: req.user._json.picture,
+                    password: "undefined",
+                });
+                payload = {
+                    email: user.email,
+                    id: user.id,
+                };
+            }
+
+            jwt.sign(payload, process.env.PWD_TOKEN, { expiresIn: 3600 * 24 }, (err, token) => {
+                return res.redirect('/?token=' + token)
+            });
+        } catch (error) {
+            console.log(error),
+                res.sendStatus(500)
+        }
+    },
 }
