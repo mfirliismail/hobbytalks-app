@@ -585,14 +585,19 @@ module.exports = {
                     // options: {
                     //     sort: { likes: 1 }
                     // }
-                }, "commentCount", "likeCount", "dislikeCount"]).limit(limit)
+                }, "commentCount", "likeCount", "dislikeCount"])
                 .select(["title", "likes", "likeCount"])
 
             thread.sort((a, b) => b.likeCount - a.likeCount)
+
+            const showThread = []
+            for (let i = 0; i < 7; i++) {
+                showThread.push(thread[i])
+            }
             return res.status(200).json({
                 status: "success",
                 message: "Data retrieved successfully",
-                data: thread
+                data: showThread
             });
         } catch (error) {
             console.log(error);
