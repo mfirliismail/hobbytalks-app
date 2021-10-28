@@ -68,6 +68,9 @@ module.exports = {
                     "email": 1,
                     "avatar": 1
                 }
+            }, {
+                path: "category",
+                models: "Category"
             }, "commentCount", "likeCount", "dislikeCount"]).limit(limit).skip(limit * (page - 1))
             const count = await Threads.count()
 
@@ -118,6 +121,9 @@ module.exports = {
                         "email": 1,
                         "avatar": 1
                     }
+                }, {
+                    path: "category",
+                    models: "Category"
                 }, "commentCount", "likeCount", "dislikeCount"]).limit(limit).skip(limit * (page - 1))
             const comments = await Comments.find({ threadId: threads.id })
             const count = await Threads.count({ "title": { $regex: new RegExp(keyword, "gi") } })
@@ -405,7 +411,7 @@ module.exports = {
         const id = req.params.id
         try {
             if (id.match(/^[0-9a-fA-F]{24}$/)) {
-                const findThread = await Threads.findById(id).populate({
+                const findThread = await Threads.findById(id).populate([{
                     path: "comment",
                     populate: ([{
                         path: "reply",
@@ -440,7 +446,10 @@ module.exports = {
                             "avatar": 1
                         }
                     }, "replyCount", "likeCount", "dislikeCount"])
-                }).populate({
+                }, {
+                    path: "category",
+                    models: "Category"
+                }, ]).populate({
                     path: "userId",
                     models: "Users",
                     select: {
@@ -490,6 +499,9 @@ module.exports = {
                     "email": 1,
                     "avatar": 1
                 }
+            }, {
+                path: "category",
+                models: "Category"
             }, "commentCount", "likeCount", "dislikeCount"]).limit(limit).skip(limit * (page - 1))
             const comments = await Comments.find({ threadId: thread.id })
             const count = await Threads.count()
@@ -573,14 +585,19 @@ module.exports = {
                     // options: {
                     //     sort: { likes: 1 }
                     // }
-                }, "commentCount", "likeCount", "dislikeCount"]).limit(limit)
+                }, "commentCount", "likeCount", "dislikeCount"])
                 .select(["title", "likes", "likeCount"])
 
             thread.sort((a, b) => b.likeCount - a.likeCount)
+
+            const showThread = []
+            for (let i = 0; i < 7; i++) {
+                showThread.push(thread[i])
+            }
             return res.status(200).json({
                 status: "success",
                 message: "Data retrieved successfully",
-                data: thread
+                data: showThread
             });
         } catch (error) {
             console.log(error);
@@ -602,6 +619,9 @@ module.exports = {
                     "email": 1,
                     "avatar": 1
                 }
+            }, {
+                path: "category",
+                models: "Category"
             }, "commentCount", "likeCount", "dislikeCount"]).limit(limit).skip(limit * (page - 1))
             const comments = await Comments.find({ threadId: thread.id })
             thread.sort((a, b) => b.likeCount - a.likeCount)
@@ -701,6 +721,9 @@ module.exports = {
                     "email": 1,
                     "avatar": 1
                 }
+            }, {
+                path: "category",
+                models: "Category"
             }, "comment", "commentCount", "likeCount", "dislikeCount"])
             let sekarang = date.getTime()
             let setelah = date.setTime(date.getTime() - (12 * 60 * 60 * 1000))

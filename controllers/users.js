@@ -20,6 +20,9 @@ module.exports = {
                     path: "threads",
                     limit: limit,
                     skip: limit * (page - 1),
+                    options: {
+                        sort: { date: -1 }
+                    },
                     populate: ([{
                         path: "comment",
                         model: "Comments",
@@ -56,12 +59,6 @@ module.exports = {
             }
             let total = Math.ceil(count / limit)
 
-            if (page > total) {
-                return res.status(400).json({
-                    status: "failed",
-                    message: "page doesnt exist"
-                })
-            }
 
             return res.status(200).json({
                 status: "success",
@@ -161,6 +158,9 @@ module.exports = {
                     path: "threads",
                     limit: limit,
                     skip: limit * (page - 1),
+                    options: {
+                        sort: { date: -1 }
+                    },
                     populate: ([{
                         path: "comment",
                         model: "Comments",
@@ -197,12 +197,6 @@ module.exports = {
             }
             let total = Math.ceil(count / limit)
 
-            if (page > total) {
-                return res.status(400).json({
-                    status: "failed",
-                    message: "page doesnt exist"
-                })
-            }
             return res.status(200).json({
                 status: "success",
                 message: "Success Retrieved Data",
