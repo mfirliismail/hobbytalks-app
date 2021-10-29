@@ -197,7 +197,7 @@ module.exports = {
                 const user = await Users.create({
                     name: req.user._json.name,
                     email: req.user._json.email,
-                    avatar: req.user._json.picture,
+                    avatar: req.user._json.picture.data.url,
                     password: "undefined",
                 });
                 payload = {
@@ -207,7 +207,7 @@ module.exports = {
             }
 
             jwt.sign(payload, process.env.PWD_TOKEN, { expiresIn: 3600 * 24 }, (err, token) => {
-                return res.redirect('/?token=' + token)
+                return res.redirect('http://localhost:8000/api/v1/?token=' + token)
             });
         } catch (error) {
             console.log(error),

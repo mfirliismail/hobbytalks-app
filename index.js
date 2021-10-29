@@ -1,9 +1,8 @@
 const express = require('express')
 const app = express()
-const port = process.env.PORT || 5000
+const port = process.env.PORT || 8000
 const router = require('./routes')
 const db = require('./db/database')
-const passportFacebook = require('./middlewares/passportFacebook')
 const passport = require('./middlewares/passport')
 const session = require('cookie-session')
 const cors = require('cors')
@@ -14,8 +13,6 @@ app.use(session({
     name: "userlogin-cookie",
     keys: ["apaaja", "bisaapaaja"]
 }))
-app.use(passportFacebook.initialize())
-app.use(passportFacebook.session())
 app.use(passport.initialize())
 app.use(passport.session())
 app.use('/api/v1', router)
