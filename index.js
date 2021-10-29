@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const port = process.env.PORT || 8000
+const port = process.env.PORT || 5000
 const router = require('./routes')
 const db = require('./db/database')
 const passport = require('./middlewares/passport')
