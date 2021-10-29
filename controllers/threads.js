@@ -838,4 +838,153 @@ module.exports = {
             });
         }
     },
+    followThread: async(req, res) => {
+        const threadId = req.params.id
+        const userId = req.user.id
+        try {
+            if (threadId.match(/^[0-9a-fA-F]{24}$/)) {
+                const findUser = await Users.findById(userId)
+                if (!findUser) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "cannot found user"
+                    })
+                }
+                if (findUser.following.filter((e) => e.toString() == threadId).length > 0) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "threads already followed"
+                    })
+                }
+
+                await findUser.following.unshift(threadId)
+
+                await findUser.save()
+                return res.status(200).json({
+                    status: "success",
+                    message: "success following thread"
+                })
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "User not match"
+                })
+            }
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({
+                status: 'failed',
+                message: "Internal Server Error"
+            })
+        }
+    },
+    unfollowThread: async(req, res) => {
+        const threadId = req.params.id
+        const userId = req.user.id
+        try {
+            if (threadId.match(/^[0-9a-fA-F]{24}$/)) {
+                const findUser = await Users.findById(userId)
+                if (!findUser) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "cannot found user"
+                    })
+                }
+                if (findUser.following.filter((e) => e.toString() == threadId).length == 0) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "threads has not been followed"
+                    })
+                }
+
+                await findUser.following.pull(threadId)
+
+                await findUser.save()
+                return res.status(200).json({
+                    status: "success",
+                    message: "success unfollowing thread"
+                })
+            } else {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "User not match"
+                })
+            }
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({
+                status: 'failed',
+                message: "Internal Server Error"
+            })
+        }
+    },
+    getfollowThread: async(req, res) => {
+        const page = parseInt(req.query.page) || 1
+        const limit = 4
+        const userId = req.user.id
+        try {
+            const findUserLimit = await Users.findById(userId).populate([{
+                path: "following",
+                models: "Threads",
+                options: {
+                    limit: limit,
+                    skip: limit * (page - 1)
+                },
+                populate: ([{
+                    path: "category",
+                    models: "Category"
+                }, "commentCount", "likeCount", "dislikeCount"])
+            }])
+            const findUser = await Users.findById(userId).populate([{
+                path: "following",
+                models: "Threads",
+                populate: ([{
+                    path: "category",
+                    models: "Category"
+                }, "commentCount", "likeCount", "dislikeCount"])
+            }])
+            const followingThread = findUserLimit.following
+            const count = findUser.following.length
+
+            let next = page + 1
+            if (page * limit >= count) {
+                next = 0
+            }
+            let previous = 0
+            if (page > 1) {
+                previous = page - 1
+            }
+            let total = Math.ceil(count / limit)
+
+            if (page > total) {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "page doesnt exist"
+                })
+            }
+            if (followingThread.length == 0) {
+                return res.status(400).json({
+                    status: "failed",
+                    message: "You haven't follow any threads"
+                })
+            }
+            return res.status(200).json({
+                status: "success",
+                message: "success retrieved thread that you follow",
+                data: followingThread,
+                nextPage: next,
+                previousPage: previous,
+                currentPage: page,
+                totalPage: total
+            })
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({
+                status: 'failed',
+                message: "Internal Server Error"
+            })
+        }
+    }
 }
