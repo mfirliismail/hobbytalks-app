@@ -611,6 +611,7 @@ module.exports = {
         const page = parseInt(req.query.page) || 1
         const limit = 4
         try {
+
             const thread = await Threads.find().populate([{
                 path: "userId",
                 models: "Users",
@@ -622,9 +623,12 @@ module.exports = {
             }, {
                 path: "category",
                 models: "Category"
-            }, "commentCount", "likeCount", "dislikeCount"]).limit(limit).skip(limit * (page - 1))
-            const comments = await Comments.find({ threadId: thread.id })
+            }, "commentCount", "likeCount", "dislikeCount"])
+             
             thread.sort((a, b) => b.likeCount - a.likeCount)
+            const start = (page - 1) * limit
+            const end = limit + start
+            const pageLimit = thread.splice(start, end)
             const count = await Threads.count()
             for (let i = 0; i < thread.length; i++) {
                 if (page > 1) {
@@ -656,7 +660,7 @@ module.exports = {
             return res.status(200).json({
                 status: "success",
                 message: "Data retrieved successfully",
-                data: thread,
+                data: pageLimit,
                 totalPage: total,
                 nextPage: next,
                 currentPage: page,
