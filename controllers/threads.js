@@ -626,21 +626,20 @@ module.exports = {
             }, "commentCount", "likeCount", "dislikeCount"])
              
             thread.sort((a, b) => b.likeCount - a.likeCount)
+            for (let i = 0; i < thread.length; i++) {
+                if(i == 0){
+                    thread[i].status = "Popular"
+                    thread[i].save()
+                }else{
+                    thread[i].status = "none"
+                }
+            }
             const start = (page - 1) * limit
             const end = limit + start
             const pageLimit = thread.splice(start, end)
             const count = await Threads.count()
-            for (let i = 0; i < thread.length; i++) {
-                if (page > 1) {
-                    thread[i].status = "none"
-                    await thread[i].save()
-                } else {
-                    thread[i].status = "none"
-                    thread[0].status = "Popular"
-                    await thread[i].save()
-                }
 
-            }
+            
             let next = page + 1
             if (page * limit >= count) {
                 next = 0
