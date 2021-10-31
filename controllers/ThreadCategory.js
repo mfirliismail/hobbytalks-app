@@ -14,6 +14,9 @@ module.exports = {
                     "email": 1,
                     "avatar": 1
                 }
+            },{
+                path: "category",
+                models: "Category"
             }, "commentCount", "likeCount", "dislikeCount"]).limit(limit).skip(limit * (page - 1))
             // const threads = await ThreadsCategory.find({ threadsId: threads.id })
             const count = await ThreadsCategory.count()
