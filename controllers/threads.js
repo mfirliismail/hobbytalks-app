@@ -632,6 +632,7 @@ module.exports = {
                     thread[i].save()
                 }else{
                     thread[i].status = "none"
+                    thread[i].save()
                 }
             }
             const start = (page - 1) * limit
