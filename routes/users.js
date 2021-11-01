@@ -25,7 +25,7 @@ router.get('/user/:id', getOneUser)
 
 router.get('/failedFacebook', (req, res) => res.send("Failed to login to facebook, please try again"))
 
-router.get("/login/facebook", passport.authenticate("facebook"));
+router.get("/login/facebook", passport.authenticate("facebook"), { scope: "email" });
 
 router.get('/facebook/callback', passport.authenticate('facebook', { failureRedirect: "/api/v1/users/failedFacebook" }), facebookLogin)
 
