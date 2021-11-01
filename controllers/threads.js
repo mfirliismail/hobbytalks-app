@@ -637,7 +637,7 @@ module.exports = {
             }
             const start = (page - 1) * limit
             const end = limit + start
-            const pageLimit = thread.splice(start, end)
+            const pageLimit = thread.slice(start, end)
             const count = await Threads.count()
 
             
