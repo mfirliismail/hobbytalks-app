@@ -624,13 +624,13 @@ module.exports = {
                 path: "category",
                 models: "Category"
             }, "commentCount", "likeCount", "dislikeCount"])
-             
+
             thread.sort((a, b) => b.likeCount - a.likeCount)
             for (let i = 0; i < thread.length; i++) {
-                if(i == 0){
+                if (i == 0) {
                     thread[i].status = "Popular"
                     thread[i].save()
-                }else{
+                } else {
                     thread[i].status = "none"
                     thread[i].save()
                 }
@@ -640,7 +640,7 @@ module.exports = {
             const pageLimit = thread.slice(start, end)
             const count = await Threads.count()
 
-            
+
             let next = page + 1
             if (page * limit >= count) {
                 next = 0
@@ -854,20 +854,28 @@ module.exports = {
                         message: "cannot found user"
                     })
                 }
-                if (findUser.following.filter((e) => e.toString() == threadId).length > 0) {
-                    return res.status(400).json({
-                        status: "failed",
-                        message: "threads already followed"
+                const findThread = await Threads.findById(threadId)
+                if (findThread.userId.toString() != userId) {
+                    if (findUser.following.filter((e) => e.toString() == threadId).length > 0) {
+                        return res.status(400).json({
+                            status: "failed",
+                            message: "threads already followed"
+                        })
+                    }
+
+                    await findUser.following.unshift(threadId)
+
+                    await findUser.save()
+                    return res.status(200).json({
+                        status: "success",
+                        message: "success following thread"
                     })
                 }
-
-                await findUser.following.unshift(threadId)
-
-                await findUser.save()
-                return res.status(200).json({
-                    status: "success",
-                    message: "success following thread"
+                return res.status(400).json({
+                    status: "failed",
+                    message: "You cannot follow your own thread"
                 })
+
             } else {
                 return res.status(400).json({
                     status: "failed",
