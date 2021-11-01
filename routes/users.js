@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const users = require('../controllers/users')
-const { signUp, login, googleLogin, googleToken } = require('../controllers/authController')
+const { signUp, login, googleLogin, googleToken, facebookLogin } = require('../controllers/authController')
 const passport = require('../middlewares/passport')
 const { editUser, getProfile, editBanner, getOneUser, isLikeCategories } = require('../controllers/users')
 const { authToken } = require('../middlewares/auth')
@@ -22,5 +22,11 @@ router.put('/likecategories', authToken, isLikeCategories)
 router.put('/edit/profile', authToken, cloudUpload('avatar'), editUser)
 router.put('/edit/banner', authToken, cloudUpload('banner'), editBanner)
 router.get('/user/:id', getOneUser)
+
+router.get('/failedFacebook', (req, res) => res.send("Failed to login to facebook, please try again"))
+
+router.get("/login/facebook", passport.authenticate("facebook"));
+
+router.get('/facebook/callback', passport.authenticate('facebook', { failureRedirect: "/api/v1/users/failedFacebook" }), facebookLogin)
 
 module.exports = router

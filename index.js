@@ -3,7 +3,6 @@ const app = express()
 const port = process.env.PORT || 5000
 const router = require('./routes')
 const db = require('./db/database')
-
 const passport = require('./middlewares/passport')
 const session = require('cookie-session')
 const cors = require('cors')
