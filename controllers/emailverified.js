@@ -101,9 +101,7 @@ module.exports = {
             }
 
             //method sign dari jwt
-            Jwt.sign(payload, process.env.PWD_TOKEN, { expiresIn: 3600 * 24 }, (err, token) => {
-                return res.redirect('https://dev-hoobytalks.herokuapp.com/account/loading/?token=' + token)
-            });
+            res.redirect('https://dev-hoobytalks.herokuapp.com/account/login')
 
         } catch (error) {
             console.log(error)
