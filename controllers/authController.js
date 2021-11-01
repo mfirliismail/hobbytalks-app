@@ -185,12 +185,9 @@ module.exports = {
     facebookLogin: async(req, res) => {
         let payload;
         try {
-            if(!req.user._json.email){
-
-            }
             console.log("ini json" , req.user._json)
             const checkEmail = await Users.findOne({
-                email: req.user._json.email
+                email: req.user._json.email ? req.user._json.email : req.user._json.id
             });
             if (checkEmail) {
                 payload = {
