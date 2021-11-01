@@ -185,6 +185,7 @@ module.exports = {
     facebookLogin: async(req, res) => {
         let payload;
         try {
+            console.log("ini json" , req.user._json)
             const checkEmail = await Users.findOne({
                 email: req.user._json.email
             });
