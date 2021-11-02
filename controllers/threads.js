@@ -541,11 +541,11 @@ module.exports = {
         }
     },
     moreFromUser: async(req, res) => {
-        const id = req.params.userId
         const threadId = req.params.threadId
         try {
-            if (id.match(/^[0-9a-fA-F]{24}$/)) {
-                const threads = await Threads.find({ userId: id, _id: { $ne: threadId } }).populate(['commentCount', "likeCount", "dislikeCount"]).limit(3)
+            if (threadId.match(/^[0-9a-fA-F]{24}$/)) {
+                const findUserThread = await Threads.findById(threadId)
+                const threads = await Threads.find({ userId: findUserThread.userId, _id: { $ne: threadId } }).sort({ date: -1}).populate(['commentCount', "likeCount", "dislikeCount"]).limit(3)
                 if (!threads) {
                     return res.status(400).json({
                         status: 'failed',
@@ -565,6 +565,7 @@ module.exports = {
                 })
             }
         } catch (error) {
+            console.log(error)
             return res.status(500).json({
                 status: "failed",
                 message: "Internal Server Error"
