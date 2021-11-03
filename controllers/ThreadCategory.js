@@ -6,7 +6,7 @@ module.exports = {
         const id = req.params.id
         try {
 
-            const threads = await ThreadsCategory.find({category: id}).populate([{
+            const threads = await ThreadsCategory.find({category: id}).sort({date: -1}).populate([{
                 path: "userId",
                 models: "Users",
                 select: {
