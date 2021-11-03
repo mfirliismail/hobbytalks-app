@@ -19,7 +19,7 @@ module.exports = {
                 models: "Category"
             }, "commentCount", "likeCount", "dislikeCount"]).limit(limit).skip(limit * (page - 1))
             // const threads = await ThreadsCategory.find({ threadsId: threads.id })
-            const count = await ThreadsCategory.count()
+            const count = await ThreadsCategory.count({category: id})
 
             let next = page + 1
             if (page * limit >= count) {
