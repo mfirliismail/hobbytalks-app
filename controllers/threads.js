@@ -948,6 +948,14 @@ module.exports = {
                 populate: ([{
                     path: "category",
                     models: "Category"
+                }, {
+                    path: "userId",
+                    models: "Users",
+                    select: {
+                    "name": 1,
+                    "email": 1,
+                    "avatar": 1
+                    }
                 }, "commentCount", "likeCount", "dislikeCount"])
             }])
             const findUser = await Users.findById(userId).populate([{
