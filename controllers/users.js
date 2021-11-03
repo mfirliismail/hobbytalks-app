@@ -233,17 +233,13 @@ module.exports = {
                         })
                     }
 
-                    if (findUser.categoryLike.filter((e) => e.toString() == categoriesId[i]).length > 0) {
-                        return res.status(400).json({
-                            status: "failed",
-                            message: "like category already"
-                        })
+                    if (findUser.categoryLike.filter((e) => e.toString() == categoriesId[i]).length == 0) {
+                        console.log("category", categoriesId[i], findUser.categoryLike)
+
+                        findUser.categoryLike.unshift(categoriesId[i].toString())
+                        await findUser.save()
                     }
-                    console.log("category", categoriesId[i], findUser.categoryLike)
-
-                    findUser.categoryLike.unshift(categoriesId[i].toString())
-
-                    await findUser.save()
+                    
                 } else {
                     return res.status(400).json({
                         status: "Failled",
