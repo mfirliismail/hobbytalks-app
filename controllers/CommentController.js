@@ -147,21 +147,14 @@ module.exports = {
         const id = req.params.id
         const userId = req.user.id
         try {
-            const paramId = await comment.findById(id)
-            if (paramId == null) {
-                return res.status(400).json({
-                    status: "failed",
-                    message: "cannot delete"
-                })
-            }
-            const comments = await comment.findOne({ userId: userId })
+            const comments = await comment.findOne({_id : id, userId: userId })
             if (!comments) {
                 return res.status(400).json({
                     status: "failed",
                     message: "comment not found"
                 })
             }
-            const threads = await thread.findById(paramId.threadId)
+            const threads = await thread.findById(comments.threadId)
             await threads.comment.pull(id)
             await threads.save()
             const deleteComment = await comment.deleteOne({ _id: id })
