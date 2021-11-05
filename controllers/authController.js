@@ -57,7 +57,7 @@ module.exports = {
                 password: hashPassword,
                 verifCode
             })
-            console.log("🚀 ~ file: authController.js ~ line 51 ~ signUp: ~ signUp", signUp)
+            
 
             if (!signUp) {
                 return res.status(400).json({
@@ -66,7 +66,6 @@ module.exports = {
                 })
             }
 
-            console.log("🚀 ~ file: authController.js ~ line 64 ~ signUp: ~ signUp", signUp)
 
             sendEmail(email, verifCode)
 
@@ -76,7 +75,6 @@ module.exports = {
             })
 
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 status: "Failed",
                 message: "Internal Server Error"
@@ -141,7 +139,6 @@ module.exports = {
             });
 
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 status: "Failed",
                 message: "Internal Server Error"
@@ -177,8 +174,7 @@ module.exports = {
                 return res.redirect('https://dev-hoobytalks.herokuapp.com/account/loading/?token=' + token)
             });
         } catch (error) {
-            console.log(error),
-                res.sendStatus(500)
+            res.sendStatus(500)
         }
     },
 
@@ -211,8 +207,7 @@ module.exports = {
                 return res.redirect('https://dev-hoobytalks.herokuapp.com/account/loading/?token=' + token)
             });
         } catch (error) {
-            console.log(error),
-                res.sendStatus(500)
+            res.sendStatus(500)
         }
     },
 }

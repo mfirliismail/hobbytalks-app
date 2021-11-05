@@ -10,7 +10,6 @@ module.exports = {
                 data:categories,
             });
         }catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 massage: "something wrong error"
@@ -26,7 +25,6 @@ module.exports = {
                 data: categories,
             });
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "server Error",
@@ -38,8 +36,6 @@ module.exports = {
         const body = req.body
         const id = req.params.Categories
         try {
-            console.log(id)
-            console.log(body)
             const categories = await Categories.findById(id)
             categories.name = body.name
             categories.id = body.id
@@ -50,7 +46,10 @@ module.exports = {
                 data : categories
             })
         } catch (error){
-            console.log(error)
+            return res.status(500).json({
+                status: "error",
+                message: "server Error",
+            });
         }
     },
     delete: async (req, res) => {
@@ -63,7 +62,10 @@ module.exports = {
                 message : "Data deleted succsesfully"
             })
         } catch (error) {
-            console.log(error)
+            return res.status(500).json({
+                status: "error",
+                message: "server Error",
+            });
         }
     }
 };

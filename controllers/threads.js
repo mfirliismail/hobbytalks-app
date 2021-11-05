@@ -4,7 +4,7 @@ const Reply = require('../models/Reply')
 const SubReply = require('../models/SubReply')
 const Users = require('../models/Users')
 const joi = require('joi')
-const { find } = require('../models/Threads')
+
 
 module.exports = {
     createThreads: async(req, res) => {
@@ -40,7 +40,7 @@ module.exports = {
                     message: "cannot create thread"
                 })
             }
-            await user.threads.unshift(createthread._id)
+            user.threads.unshift(createthread._id)
             await user.save()
             return res.status(200).json({
                 status: "success",
@@ -48,7 +48,6 @@ module.exports = {
             })
 
         } catch (err) {
-            console.log(err)
             return res.status(500).json({
                 status: "failed",
                 message: "Internal Server Error"
@@ -100,7 +99,6 @@ module.exports = {
                 previousPage: previous
             });
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "Internal Server Error",
@@ -125,7 +123,6 @@ module.exports = {
                     path: "category",
                     models: "Category"
                 }, "commentCount", "likeCount", "dislikeCount"]).limit(limit).skip(limit * (page - 1))
-            const comments = await Comments.find({ threadId: threads.id })
             const count = await Threads.count({ "title": { $regex: new RegExp(keyword, "gi") } })
 
             let next = page + 1
@@ -154,14 +151,12 @@ module.exports = {
             res.status(200).json({
                 status: "success",
                 data: threads,
-                totalComments: comments.length,
                 totalPage: total,
                 nextPage: next,
                 currentPage: page,
                 previousPage: previous
             })
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 status: "failed",
                 message: "Internal Server Error"
@@ -186,7 +181,6 @@ module.exports = {
                 message: "Thread Removed"
             });
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 status: "failed",
                 message: "Internal Server Error"
@@ -246,6 +240,7 @@ module.exports = {
                         message: "cannot found thread"
                     })
                 }
+                
                 if (findthread.likes.filter((e) => e.user.toString() == userId).length > 0) {
                     return res.status(400).json({
                         status: "failed",
@@ -257,7 +252,7 @@ module.exports = {
                     findthread.dislike.splice(removeIndex, 1);
                 }
 
-                await findthread.likes.unshift({ user: userId })
+                findthread.likes.unshift({ user: userId })
 
                 await findthread.save()
                 return res.status(200).json({
@@ -272,7 +267,6 @@ module.exports = {
             }
 
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 status: 'failed',
                 message: "Internal Server Error"
@@ -313,7 +307,6 @@ module.exports = {
             }
 
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 status: 'failed',
                 message: "Internal Server Error"
@@ -343,7 +336,7 @@ module.exports = {
                     findthread.likes.splice(removeIndex, 1);
                 }
 
-                await findthread.dislike.unshift({ user: userId })
+                findthread.dislike.unshift({ user: userId })
 
                 await findthread.save()
                 return res.status(200).json({
@@ -359,7 +352,6 @@ module.exports = {
             }
 
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 status: 'failed',
                 message: "Internal Server Error"
@@ -400,7 +392,6 @@ module.exports = {
             }
 
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 status: 'failed',
                 message: "Internal Server Error"
@@ -479,7 +470,6 @@ module.exports = {
             }
 
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 status: "failed",
                 message: "Internal Server Error"
@@ -490,7 +480,6 @@ module.exports = {
         const page = parseInt(req.query.page) || 1
         const limit = 4
         try {
-
             const thread = await Threads.find().sort({ date: -1 }).populate([{
                 path: "userId",
                 models: "Users",
@@ -503,7 +492,6 @@ module.exports = {
                 path: "category",
                 models: "Category"
             }, "commentCount", "likeCount", "dislikeCount"]).limit(limit).skip(limit * (page - 1))
-            const comments = await Comments.find({ threadId: thread.id })
             const count = await Threads.count()
 
             let next = page + 1
@@ -526,14 +514,12 @@ module.exports = {
                 status: "success",
                 message: "Data retrieved successfully",
                 data: thread,
-                totalComment: comments.length,
                 totalPage: total,
                 nextPage: next,
                 currentPage: page,
                 previousPage: previous
             });
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "Internal Server Error",
@@ -601,7 +587,6 @@ module.exports = {
                 data: showThread
             });
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "Internal Server Error",
@@ -668,7 +653,6 @@ module.exports = {
                 previousPage: previous
             });
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "Internal Server Error",
@@ -706,7 +690,6 @@ module.exports = {
             })
 
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 status: "failed",
                 message: "Internal Server Error"
@@ -800,7 +783,6 @@ module.exports = {
 
 
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 status: "failed",
                 message: "Internal Server Error"
@@ -828,7 +810,6 @@ module.exports = {
                         "avatar": 1
                     }
                 }, "commentCount", "likeCount", "dislikeCount"]).limit(limit)
-                // const threads = await ThreadsCategory.find({ threadsId: threads.id })
 
             return res.status(200).json({
                 status: "success",
@@ -836,7 +817,6 @@ module.exports = {
                 data: related,
             });
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "Internal Server Error",
@@ -864,7 +844,7 @@ module.exports = {
                         })
                     }
 
-                    await findUser.following.unshift(threadId)
+                    findUser.following.unshift(threadId)
 
                     await findUser.save()
                     return res.status(200).json({
@@ -911,7 +891,7 @@ module.exports = {
                     })
                 }
 
-                await findUser.following.pull(threadId)
+                findUser.following.pull(threadId)
 
                 await findUser.save()
                 return res.status(200).json({
@@ -926,7 +906,6 @@ module.exports = {
             }
 
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 status: 'failed',
                 message: "Internal Server Error"
@@ -1001,7 +980,6 @@ module.exports = {
                 totalPage: total
             })
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 status: 'failed',
                 message: "Internal Server Error"

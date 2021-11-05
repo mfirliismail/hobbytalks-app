@@ -22,7 +22,7 @@ module.exports = {
                     replyId: id,
                     content: body.content
                 });
-                await findReply.subReply.unshift(saveSubReply._id)
+                findReply.subReply.unshift(saveSubReply._id)
                 await findReply.save()
                 return res.status(201).json({
                     status: "success",
@@ -35,7 +35,6 @@ module.exports = {
                 })
             }
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "Internal Server Error",
@@ -78,7 +77,6 @@ module.exports = {
                 })
             }
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "Internal Server Error",
@@ -113,7 +111,6 @@ module.exports = {
                 })
             }
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "Internal Server Error",
@@ -124,22 +121,15 @@ module.exports = {
         const id = req.params.id
         const userId = req.user.id
         try {
-            const paramId = await subReply.findById(id)
+            const paramId = await subReply.findOne({_id : id, userId: userId})
             if (paramId == null) {
                 return res.status(400).json({
                     status: "failed",
                     message: "cannot delete"
                 })
             }
-            const subReplies = await subReply.findOne({ userId: userId })
-            if (!subReplies) {
-                return res.status(400).json({
-                    status: "failed",
-                    message: "reply not found"
-                })
-            }
             const replys = await reply.findById(paramId.replyId)
-            await replys.subReply.pull(id)
+            replys.subReply.pull(id)
             await replys.save()
             const deleteSubReply = await subReply.deleteOne({ _id: id })
             if (!deleteSubReply.deletedCount) {
@@ -153,7 +143,6 @@ module.exports = {
                 message: "subReply deleted successfully"
             })
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "Internal Server Error",
@@ -166,7 +155,6 @@ module.exports = {
         try {
             if (subreplyId.match(/^[0-9a-fA-F]{24}$/)) {
                 const subreply = await subReply.findById(subreplyId);
-                console.log(subreply)
                 if (subreply.likes.filter((like) => like.user.toString() === userId).length > 0) {
                     return res.status(400).json({
                         status: "failed",
@@ -178,8 +166,7 @@ module.exports = {
                     const removeIndex = subreply.dislike.map((d) => d.user.toString()).indexOf(userId);
                     subreply.dislike.splice(removeIndex, 1);
                 }
-
-                await subreply.likes.unshift({ user: userId })
+                subreply.likes.unshift({ user: userId })
 
                 await subreply.save()
                 res.status(200).json({
@@ -193,7 +180,6 @@ module.exports = {
                 })
             }
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "Internal Server Error",
@@ -228,7 +214,6 @@ module.exports = {
                 })
             }
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "Internal Server Error",
@@ -254,7 +239,7 @@ module.exports = {
                     })
                 }
 
-                await subreply.dislike.unshift({ user: userId })
+                subreply.dislike.unshift({ user: userId })
 
                 await subreply.save()
                 return res.status(200).json({
@@ -268,7 +253,6 @@ module.exports = {
                 })
             }
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "Internal Server Error",
@@ -303,7 +287,6 @@ module.exports = {
                 })
             }
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "Internal Server Error",

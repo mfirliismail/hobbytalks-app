@@ -104,7 +104,6 @@ module.exports = {
             res.redirect('https://dev-hoobytalks.herokuapp.com/account/login')
 
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 status: "Failed",
                 message: "Internal Server Error"

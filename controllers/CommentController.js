@@ -22,7 +22,7 @@ module.exports = {
                     threadId: id,
                     content: body.content
                 });
-                await threads.comment.unshift(saveComment._id)
+                threads.comment.unshift(saveComment._id)
                 await threads.save()
                 return res.status(201).json({
                     status: "success",
@@ -36,7 +36,6 @@ module.exports = {
             }
 
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "Internal Server Error",
@@ -103,7 +102,6 @@ module.exports = {
                 })
             }
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "Internal Server Error",
@@ -136,7 +134,6 @@ module.exports = {
                 })
             }
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "Internal Server Error",
@@ -169,7 +166,6 @@ module.exports = {
                 message: "Comment deleted successfully"
             })
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "Internal Server Error",

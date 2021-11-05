@@ -18,7 +18,6 @@ module.exports = {
                 path: "category",
                 models: "Category"
             }, "commentCount", "likeCount", "dislikeCount"]).limit(limit).skip(limit * (page - 1))
-            // const threads = await ThreadsCategory.find({ threadsId: threads.id })
             const count = await ThreadsCategory.count({category: id})
 
             let next = page + 1
@@ -47,7 +46,6 @@ module.exports = {
                 previousPage: previous
             });
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "Internal Server Error",

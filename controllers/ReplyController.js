@@ -22,7 +22,7 @@ module.exports = {
                     commentId: id,
                     content: body.content
                 });
-                await findComment.reply.unshift(saveReply._id);
+                findComment.reply.unshift(saveReply._id);
                 await findComment.save()
                 return res.status(201).json({
                     status: "success",
@@ -35,7 +35,6 @@ module.exports = {
                 })
             }
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "Internal Server Error",
@@ -81,7 +80,6 @@ module.exports = {
                 })
             }
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "Internal Server Error",
@@ -117,7 +115,6 @@ module.exports = {
             }
 
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "Internal Server Error",
@@ -143,7 +140,7 @@ module.exports = {
                 })
             }
             const comments = await comment.findById(paramId.commentId)
-            await comments.reply.pull(id)
+            comments.reply.pull(id)
             await comments.save()
             const deleteReply = await reply.deleteOne({ _id: id })
             if (!deleteReply.deletedCount) {
@@ -157,7 +154,6 @@ module.exports = {
                 message: "Reply deleted successfully"
             })
         } catch (error) {
-            console.log(error);
             return res.status(500).json({
                 status: "error",
                 message: "Internal Server Error",
@@ -190,7 +186,7 @@ module.exports = {
                     findReply.dislike.splice(removeIndex, 1);
                 }
 
-                await findReply.likes.unshift({ user: userId })
+                findReply.likes.unshift({ user: userId })
 
                 await findReply.save()
 
@@ -206,7 +202,6 @@ module.exports = {
                 })
             }
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 status: 'failed',
                 message: "Internal Server Error"
@@ -249,7 +244,6 @@ module.exports = {
             }
 
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 status: 'failed',
                 message: "Internal Server Error"
@@ -279,7 +273,7 @@ module.exports = {
                     findReply.likes.splice(removeIndex, 1);
                 }
 
-                await findReply.dislike.unshift({ user: userId })
+                findReply.dislike.unshift({ user: userId })
 
                 await findReply.save()
                 return res.status(200).json({
@@ -295,7 +289,6 @@ module.exports = {
             }
 
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 status: 'failed',
                 message: "Internal Server Error"
@@ -338,7 +331,6 @@ module.exports = {
             }
 
         } catch (error) {
-            console.log(error)
             return res.status(500).json({
                 status: 'failed',
                 message: "Internal Server Error"
