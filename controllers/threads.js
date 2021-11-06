@@ -822,7 +822,15 @@ module.exports = {
         const userId = req.user.id
         try {
             if (threadId.match(/^[0-9a-fA-F]{24}$/)) {
+                const findUser = await Users.findById(userId)
+                if (!findUser) {
+                    return res.status(400).json({
+                        status: "failed",
+                        message: "cannot found user"
+                    })
+                }
                 const findThread = await Threads.findById(threadId)
+                
                 if (findThread.userId.toString() != userId) {
                     if (findUser.following.filter((e) => e.toString() == threadId).length > 0) {
                         return res.status(400).json({
