@@ -665,30 +665,14 @@ module.exports = {
         try {
             const findUser = await Users.findById(userId)
             const categoryLikes = findUser.categoryLike
-            const categoryThreads = []
 
-            for (let i = 0; i < categoryLikes.length; i++) {
-                const findThreads = await Threads.findOne({ category: categoryLikes[i] })
-                    .populate([{
-                        path: "userId",
-                        model: "Users",
-                        select: {
-                            "name": 1,
-                            "avatar": 1
-                        }
-                    }, "dislikeCount", "likeCount", "commentCount"])
-                    .select(["title", "dislike", "likes", "comment"])
-                if (findThreads) {
-                    categoryThreads.push(findThreads)
-                }
-            }
-
+            const categoryThreads = await Threads.find().where('category').in(categoryLikes)
             return res.status(200).json({
                 status: "Success",
                 message: "Success retrieved data",
                 data: categoryThreads
             })
-
+            
         } catch (error) {
             return res.status(500).json({
                 status: "failed",
@@ -717,10 +701,6 @@ module.exports = {
             let setelah = date.setTime(date.getTime() - (12 * 60 * 60 * 1000))
             let skrng = new Date(sekarang)
             let stlh = new Date(setelah)
-            console.log(sekarang)
-            console.log(setelah)
-            console.log(skrng)
-            console.log(stlh)
             for (let i = 0; i < thread.length; i++) {
                 // let hasil = thread[i].likes.length + thread[i].dislike.length + thread[i].comment.length
                 let hasil
@@ -828,13 +808,6 @@ module.exports = {
         const userId = req.user.id
         try {
             if (threadId.match(/^[0-9a-fA-F]{24}$/)) {
-                const findUser = await Users.findById(userId)
-                if (!findUser) {
-                    return res.status(400).json({
-                        status: "failed",
-                        message: "cannot found user"
-                    })
-                }
                 const findThread = await Threads.findById(threadId)
                 if (findThread.userId.toString() != userId) {
                     if (findUser.following.filter((e) => e.toString() == threadId).length > 0) {
