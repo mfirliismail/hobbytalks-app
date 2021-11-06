@@ -218,13 +218,29 @@ module.exports = {
 
         try {
             const findUser = await Users.findById(userId)
-            const findCategory = await Category.find().where('_id').in(categoriesId)
 
-            if (findUser.categoryLike.filter((e) => e.toString() == categoriesId[i]).length == 0) {
+            for (let i = 0; i < categoriesId.length; i++) {
+                if (categoriesId[i].match(/^[0-9a-fA-F]{24}$/)) {
+                    const findCategory = await Category.findById(categoriesId[i])
+                    if (!findCategory) {
+                        return res.status(400).json({
+                            status: "Failled",
+                            message: "cannot found category id"
+                        })
+                    }
+
+                    if (findUser.categoryLike.filter((e) => e.toString() == categoriesId[i]).length == 0) {
                         findUser.categoryLike.unshift(categoriesId[i].toString())
                         await findUser.save()
                     }
                     
+                } else {
+                    return res.status(400).json({
+                        status: "Failled",
+                        message: "cannot found category id"
+                    })
+                }
+            }
             return res.status(200).json({
                 status: "Success",
                 message: "Success add like categories",
