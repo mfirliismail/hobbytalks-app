@@ -665,28 +665,27 @@ module.exports = {
         try {
             const findUser = await Users.findById(userId)
             const categoryLikes = findUser.categoryLike
-            const categoryThreads = []
-
-            for (let i = 0; i < categoryLikes.length; i++) {
-                const findThreads = await Threads.findOne({ category: categoryLikes[i] })
-                    .populate([{
-                        path: "userId",
-                        model: "Users",
-                        select: {
-                            "name": 1,
-                            "avatar": 1
-                        }
-                    }, "dislikeCount", "likeCount", "commentCount"])
-                    .select(["title", "dislike", "likes", "comment"])
-                if (findThreads) {
-                    categoryThreads.push(findThreads)
+            
+            const show = await Threads.find().where("category").in(categoryLikes)
+            let random = parseInt(Math.floor(Math.random() * show.length))
+            const showThread = await Threads.find().where("category").in(categoryLikes).skip(random).limit(4).populate([{
+                path: "userId",
+                models: "Users",
+                select: {
+                    "name": 1,
+                    "email": 1,
+                    "avatar": 1
                 }
-            }
+            }, {
+                path: "category",
+                models: "Category"
+            }, "commentCount", "likeCount", "dislikeCount"])
             return res.status(200).json({
                 status: "Success",
                 message: "Success retrieved data",
-                data: categoryThreads
+                data: showThread
             })
+           
         } catch (error) {
             return res.status(500).json({
                 status: "failed",
