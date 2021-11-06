@@ -664,20 +664,23 @@ module.exports = {
 
         try {
             const findUser = await Users.findById(userId)
-            const categoryLikes = findUser.categoryLike
+            const categoryThreads = []
 
-            const categoryThreads = await Threads.find().where('category').in(categoryLikes).limit(5).populate([{
-                path: "userId",
-                models: "Users",
-                select: {
-                    "name": 1,
-                    "email": 1,
-                    "avatar": 1
+            for (let i = 0; i < categoryLikes.length; i++) {
+                const findThreads = await Threads.findOne({ category: categoryLikes[i] })
+                    .populate([{
+                        path: "userId",
+                        model: "Users",
+                        select: {
+                            "name": 1,
+                            "avatar": 1
+                        }
+                    }, "dislikeCount", "likeCount", "commentCount"])
+                    .select(["title", "dislike", "likes", "comment"])
+                if (findThreads) {
+                    categoryThreads.push(findThreads)
                 }
-            }, {
-                path: "category",
-                models: "Category"
-            }, "commentCount", "likeCount", "dislikeCount"])
+            }
             return res.status(200).json({
                 status: "Success",
                 message: "Success retrieved data",
