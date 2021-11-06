@@ -661,9 +661,10 @@ module.exports = {
     },
     mightLike: async(req, res) => {
         const userId = req.user.id
-
+        
         try {
             const findUser = await Users.findById(userId)
+            const categoryLikes = findUser.categoryLike
             const categoryThreads = []
 
             for (let i = 0; i < categoryLikes.length; i++) {
