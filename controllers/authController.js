@@ -171,7 +171,7 @@ module.exports = {
             }
 
             jwt.sign(payload, process.env.PWD_TOKEN, { expiresIn: 3600 * 24 }, (err, token) => {
-                return res.redirect('https://dev-hoobytalks.herokuapp.com/account/loading/?token=' + token)
+                return res.redirect('https://hobbytalks.herokuapp.com/account/loading/?token=' + token)
             });
         } catch (error) {
             res.sendStatus(500)
@@ -204,7 +204,7 @@ module.exports = {
             }
 
             jwt.sign(payload, process.env.PWD_TOKEN, { expiresIn: 3600 * 24 }, (err, token) => {
-                return res.redirect('https://dev-hoobytalks.herokuapp.com/account/loading/?token=' + token)
+                return res.redirect('https://hobbytalks.herokuapp.com/account/loading/?token=' + token)
             });
         } catch (error) {
             res.sendStatus(500)
