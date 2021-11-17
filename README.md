@@ -1,4 +1,4 @@
-# BackendHobbyTalk
+# HobbyTalk
 hobbytalk is a platform like forum with the aim to provide a place to accommodate people who want to share their hobbies, want to connect with other people with the same hobby, and make new friends even become part of the new community.
 
 ## Description
